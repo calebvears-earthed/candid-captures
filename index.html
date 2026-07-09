@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="en" data-theme="default-dark" style="color-scheme:dark"><head><script>/**
+ * Approval client SDK — the browser half of the approval flow (paired with
+ * approve.html), injected into every app page. A real file, imported as text and
+ * bundled at deploy (see injected-sdk.ts + the router wrangler). Runs in the
+ * untrusted app page: plain ES5, idempotent (window.__hfPatched), fully
+ * try/catch-wrapped, installed inline+synchronous at <head> so it's present
+ * before any app code runs.
+ *
+ * There is exactly ONE approval trigger: window.hf.requestGeneration(model,
+ * params, opts). The app calls it on the user's Generate action; the modal is
+ * visible exactly while the returned promise is pending. Approve resolves the
+ * minted single-use intent id, which the app threads to its server function and
+ * the fnf SDK adapter sends as the submit body's confirmation_token; cancel
+ * rejects with a DOMException named AbortError (a user choice, not a failure).
+ * Enforcement is entirely server-side: the outbound spend gate 403s any
+ * POST /jobs/submit that doesn't carry a matching minted approval (see
+ * outbound-worker/src/spend-gate.ts), so an app that skips the call gets a
+ * self-describing failed submit, never a silent spend. This SDK never inspects
+ * request bodies and never opens a modal on its own.
+ */
+(function () {
+  try {
+    if (window.__hfPatched) return;
+    window.__hfPatched = true;
+    var of = window.fetch;
+    if (typeof of !== "function") return;
+    // Approval surface origin: an app served at <slug>.<zone> reaches the auth
+    // worker at auth.<zone>, which serves the consent page at /approve.
+    var APPROVE = "https://auth." + location.host.split(".").slice(1).join(".");
+    window.__hfFetches = window.__hfFetches || [];
+
+    // Single-flight: at most ONE approval modal at a time. A fast double-click (or
+    // an app firing two requests) would otherwise open a second scrim+iframe stacked
+    // on the first — so a second approve() while one is open returns the in-flight
+    // promise instead of opening another modal.
+    var openModal = null;
+
+    // approve(job, credits): grant -> cross-origin approval iframe -> result.
+    // Resolves the minted intent id, rejects on cancel/timeout. credits is an
+    // OPTIONAL app-supplied estimate shown in the modal — never bound to the intent.
+    function approve(job, credits) {
+      if (openModal) return openModal;
+      openModal = new Promise(function (resolve, reject) {
+        of("/__auth/approval-grant", { method: "POST" })
+          .then(function (r) {
+            return r
+              .json()
+              .catch(function () {
+                return {};
+              })
+              .then(function (b) {
+                return { s: r.status, b: b };
+              });
+          })
+          .then(function (x) {
+            var g = x.b;
+            if (!g || !g.grant) {
+              reject(
+                new Error(
+                  x.s === 401 ? "hf: not signed in" : "hf: approval unavailable (" + x.s + ")",
+                ),
+              );
+              return;
+            }
+            // Outcome beacon: the ONLY sink for a modal that ends without a mint
+            // (cancel/Escape/scrim/timeout resolve entirely in this page). The
+            // grant authenticates it server-side; text/plain Blob keeps the
+            // cross-origin sendBeacon a simple request (no preflight). Endpoint:
+            // auth-worker POST /approve/outcome — fire-and-forget.
+            var tOpen = Date.now();
+            function beacon(outcome) {
+              try {
+                var payload = JSON.stringify({
+                  grant: g.grant,
+                  outcome: outcome,
+                  ms_open: Date.now() - tOpen,
+                });
+                var url = APPROVE + "/approve/outcome";
+                if (navigator.sendBeacon) {
+                  navigator.sendBeacon(url, new Blob([payload], { type: "text/plain" }));
+                } else {
+                  of(url, { method: "POST", body: payload, mode: "no-cors", keepalive: true }).catch(
+                    function () {},
+                  );
+                }
+              } catch (e) {}
+            }
+            // Three parent layers so the iframe body can stay fully TRANSPARENT and
+            // still show no white edge:
+            //  - scrim: full-screen div carrying the blur (backdrop-filter samples the
+            //    real app behind it) + a dark tint.
+            //  - wrap: a rounded, overflow:hidden div that CLIPS the iframe. The iframe
+            //    overlaps the backdrop-filter scrim, so Chromium backs its layer
+            //    opaquely; the iframe's OWN border-radius doesn't reliably clip that
+            //    layer (leaving white corners), but a parent clip does. So the corners
+            //    outside the radius are clipped away → the blurred scrim shows through,
+            //    no white ring.
+            //  - f: the iframe, fully transparent, filling wrap. Its page paints only
+            //    the card (edge-to-edge, no radius — wrap provides the rounding).
+            var scrim = document.createElement("div");
+            scrim.style.cssText =
+              "position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,0.28);" +
+              "-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)";
+            var wrap = document.createElement("div");
+            // opacity:0 until the page reports its height so the modal fades in at its
+            // final size (no empty-frame flash, no height re-center / layout shift).
+            // Round with clip-path (not just border-radius + overflow): clip-path is
+            // applied in the COMPOSITOR, so it clips the cross-origin iframe's own
+            // layer edge cleanly. border-radius/overflow only clip the shape and leave
+            // the iframe's opaque WHITE base fringing at the rounded corners (the white
+            // peek). background = card color as a second line of defense. Both the wrap
+            // and the iframe carry the clip; keep 24px in sync with the card radius.
+            wrap.style.cssText =
+              "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);" +
+              "width:min(400px,calc(100vw - 32px));height:188px;border-radius:24px;overflow:hidden;" +
+              "-webkit-clip-path:inset(0 round 24px);clip-path:inset(0 round 24px);" +
+              "background:#23262a;opacity:0;transition:opacity 0.12s ease;z-index:2147483647";
+            var f = document.createElement("iframe");
+            f.src = APPROVE + "/approve";
+            f.allowTransparency = "true";
+            f.style.cssText =
+              "display:block;width:100%;height:100%;border:0;border-radius:24px;" +
+              "-webkit-clip-path:inset(0 round 24px);clip-path:inset(0 round 24px);background:#23262a";
+            wrap.appendChild(f);
+            var done = false,
+              revealTimer;
+            function cleanup() {
+              done = true;
+              clearTimeout(revealTimer);
+              window.removeEventListener("message", onMsg);
+              document.removeEventListener("keydown", onKey, true);
+              wrap.remove();
+              scrim.remove();
+            }
+            // Dismiss = the same "denied" path as the modal's Cancel button, so the
+            // caller turns it into an AbortError (a cancel, not a failure).
+            function dismiss() {
+              if (done) return;
+              cleanup();
+              beacon("denied");
+              var er = new Error("hf: denied");
+              er.hfReason = "denied";
+              reject(er);
+            }
+            function onKey(ev) {
+              if (ev.key === "Escape" || ev.keyCode === 27) dismiss();
+            }
+            function onMsg(ev) {
+              if (ev.origin !== APPROVE || ev.source !== f.contentWindow) return;
+              var d = ev.data || {};
+              if (d.source !== "hf-approve") return;
+              // Size the clip wrapper to the page's reported card height, and reveal
+              // ONLY once sized — modal fades in at its final height (no shift/flash).
+              if (typeof d.h === "number" && d.h > 0) {
+                wrap.style.height = d.h + "px";
+                clearTimeout(revealTimer);
+                wrap.style.opacity = "1";
+              }
+              if (d.type === "ready") {
+                f.contentWindow.postMessage(
+                  { source: "hf-approve", type: "request", grant: g.grant, job: job, credits: credits },
+                  APPROVE,
+                );
+                return;
+              }
+              if (d.type === "result") {
+                cleanup();
+                if (d.ok) {
+                  resolve(d.intentId);
+                } else {
+                  beacon("denied");
+                  var er = new Error("hf: " + (d.reason || "denied"));
+                  er.hfReason = d.reason || "denied";
+                  reject(er);
+                }
+              }
+            }
+            window.addEventListener("message", onMsg);
+            // Close on background (scrim) click and on Escape. The scrim sits behind
+            // the card (wrap), so a click on it is a click OUTSIDE the modal. Escape
+            // is captured on the parent; the page also handles Escape when focus is
+            // inside the iframe (see approve.html).
+            scrim.addEventListener("click", dismiss);
+            document.addEventListener("keydown", onKey, true);
+            document.documentElement.appendChild(scrim);
+            document.documentElement.appendChild(wrap);
+            // Fallback: reveal at the default height if the page never reports its
+            // size (e.g. an older approve page), so the modal is never stuck hidden.
+            revealTimer = setTimeout(function () {
+              wrap.style.opacity = "1";
+            }, 500);
+            setTimeout(function () {
+              if (!done) {
+                cleanup();
+                beacon("timeout");
+                reject(new Error("hf: approval timeout"));
+              }
+            }, 120000);
+          })
+          .catch(reject);
+      });
+      // Release the single-flight lock once this approval settles, so the next
+      // genuine generation can open a fresh modal.
+      var release = function () {
+        openModal = null;
+      };
+      openModal.then(release, release);
+      return openModal;
+    }
+
+    // Observability-only fetch patch: request log for debugging (__hfFetches +
+    // console). No interception, no body inspection, no classification — the
+    // approval flow is driven solely by window.hf.requestGeneration.
+    window.fetch = function (input, init) {
+      try {
+        var url = typeof input === "string" ? input : (input && input.url) || String(input);
+        var method = (init && init.method) || (input && input.method) || "GET";
+        window.__hfFetches.push({ url: url, method: method, ts: Date.now() });
+        console.log("[hf-fetch]", method, url);
+      } catch (e) {}
+      return of.apply(this, arguments);
+    };
+
+    // Public SDK. The app contract (see the builder instructions and
+    // docs/generation-approval): call this on the Generate action with the SDK
+    // WIRE shape of the exact submission (wire.jobSetType + wire.params — the
+    // approval is bound server-side to the hash of {job_set_type, params} of the
+    // actual submit body), thread the resolved intent id to the server as the
+    // confirmation token, and render a cancel quietly. opts.credits is an
+    // optional display-only estimate shown in the modal. The id is a token:
+    // never logged here, and apps must not log it either.
+    window.hf = {
+      requestGeneration: function (model, params, opts) {
+        // Fail fast on a bad job identity, BEFORE any UI. The approve page
+        // (protocol.ts) silently ignores a request whose job_set_type isn't a
+        // non-empty string or whose params don't survive structured clone —
+        // which would leave the modal stuck on "Waiting for the app…" with no
+        // way to reply. A typed rejection shows the app its own bug instead.
+        if (typeof model !== "string" || !model) {
+          return Promise.reject(
+            new TypeError("hf: requestGeneration(model, params) — model must be a non-empty string"),
+          );
+        }
+        if (typeof structuredClone === "function") {
+          try {
+            structuredClone(params);
+          } catch (e) {
+            return Promise.reject(
+              new TypeError("hf: requestGeneration params must be structured-cloneable (plain JSON)"),
+            );
+          }
+        }
+        return approve({ job_set_type: model, params: params }, opts && opts.credits).then(
+          function (id) {
+            console.log("[hf] approved");
+            return id;
+          },
+          // Cancel → AbortError, per the app contract ("render a quiet cancelled
+          // state"). Other failures (not signed in, unavailable, timeout) bubble
+          // as-is — those ARE failures.
+          function (e) {
+            if (e && e.hfReason === "denied") {
+              console.log("[hf] cancelled");
+              throw new DOMException("Generation cancelled", "AbortError");
+            }
+            throw e;
+          },
+        );
+      },
+    };
+  } catch (e) {}
+})();
+</script><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="preload" as="image" href="/assets/hero.jpg" fetchPriority="high"/><link rel="stylesheet" href="/assets/styles.css" data-precedence="default"/><link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@500,700,900&amp;display=swap" data-precedence="default"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" data-precedence="default"/><title>Candid Captures | Photographer, Adelaide</title><meta name="description" content="Raw, open, honest photography by Abbey Molina. Portraits, branding, product and events across Adelaide. For the moments memory can&#x27;t hold."/><meta name="author" content="Higgsfield"/><meta property="og:title" content="Candid Captures | Photographer, Adelaide"/><meta property="og:description" content="Raw, open, honest photography by Abbey Molina. Portraits, branding, product and events across Adelaide. For the moments memory can&#x27;t hold."/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:site" content="@Higgsfield"/><meta property="og:image" content="https://d2ol7oe51mr4n9.cloudfront.net/user_3EaZcpOdDqkcI6GGk6Mx4wkVgEq/a3d0a83b-5cea-4cda-83ec-62ae478b38ba.png"/><meta name="twitter:image" content="https://d2ol7oe51mr4n9.cloudfront.net/user_3EaZcpOdDqkcI6GGk6Mx4wkVgEq/a3d0a83b-5cea-4cda-83ec-62ae478b38ba.png"/><link rel="modulepreload" href="/assets/index.js"/><link rel="modulepreload" href="/assets/index.js"/><link rel="icon" href="https://d2ol7oe51mr4n9.cloudfront.net/user_3EaZcpOdDqkcI6GGk6Mx4wkVgEq/32512c33-110d-478d-b970-cd3aa4090e9b.png"/></head><body class="bg-q-background-primary text-q-text-primary"><!--$--><div class="cc-page min-h-dvh"><header class="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between bg-gradient-to-b from-[rgba(11,11,11,0.85)] to-transparent px-6 md:px-14"><a href="#top" class="flex items-baseline gap-2"><span class="text-sm font-black uppercase tracking-[0.3em] text-[var(--cc-bone)]">Candid Captures</span><span aria-hidden="true" class="h-1.5 w-1.5 rounded-full bg-[var(--cc-brown)]"></span></a><nav class="cc-mono flex items-center gap-6 text-[11px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]"><a href="#work" class="hidden transition-colors hover:text-[var(--cc-bone)] sm:block">Work</a><a href="#packages" class="hidden transition-colors hover:text-[var(--cc-bone)] sm:block">Packages</a><a href="#about" class="hidden transition-colors hover:text-[var(--cc-bone)] sm:block">About</a><a href="#enquiry" class="text-[var(--cc-bone)] underline decoration-[var(--cc-plum)] underline-offset-4 transition-colors hover:text-[var(--cc-smoke)]">Book a shoot</a></nav></header><main><section class="relative min-h-dvh overflow-hidden cc-grain" id="top"><img src="/assets/hero.jpg" alt="Black and white candid of a couple mid-embrace at a picnic" class="absolute inset-0 h-full w-full object-cover" fetchPriority="high"/><div aria-hidden="true" class="absolute inset-0" style="background-image:url(/assets/hero.jpg);background-size:cover;background-position:center;filter:brightness(0.34) contrast(0.72) saturate(0)"></div><div aria-hidden="true" class="absolute inset-0" style="background:linear-gradient(to top, rgba(11,11,11,0.92) 0%, rgba(11,11,11,0.35) 38%, rgba(11,11,11,0.15) 100%)"></div><div class="relative z-10 flex min-h-dvh flex-col justify-end px-6 pb-16 pt-24 md:px-14 md:pb-20"><h1 class="max-w-[13ch] text-5xl font-black leading-none tracking-tighter md:text-8xl">For the moments memory can&#x27;t hold.</h1><p class="cc-mono mt-6 text-xs uppercase tracking-[0.22em] text-[var(--cc-smoke)] md:text-sm">Candid Captures. Photographer, Adelaide.</p><a href="#enquiry" class="group mt-8 inline-flex w-fit items-baseline gap-3 text-lg font-medium text-[var(--cc-bone)]"><span class="relative">Book a shoot<span class="absolute -bottom-1 left-0 h-px w-full bg-[var(--cc-plum)] transition-transform duration-300 origin-left group-hover:scale-x-125"></span></span><span aria-hidden="true" class="translate-y-px text-[var(--cc-plum)] transition-transform duration-300 group-hover:translate-x-1.5">→</span></a></div></section><section class="relative overflow-hidden px-6 py-28 md:py-44"><div class="relative mx-auto flex max-w-4xl flex-col items-center text-center"><h2 class="text-6xl font-black tracking-tighter md:text-9xl">can·did</h2><div class="mt-2 h-0.5 w-40 bg-[var(--cc-plum)] md:w-64"></div><p aria-hidden="true" class="mt-4 select-none text-5xl font-medium tracking-tight text-[var(--cc-smoke)]/50 md:text-8xl">( adj. )</p><p class="cc-mono mt-8 max-w-[46ch] text-sm leading-relaxed text-[var(--cc-smoke)]">raw, open, honest; what the frame catches before anyone poses.</p></div></section><section id="work" class="px-6 py-20 md:px-14 md:py-28"><p class="cc-mono text-xs uppercase tracking-[0.28em] text-[var(--cc-smoke)]">Selected work</p><div class="mt-10 columns-2 gap-4 md:columns-3 md:gap-6 [column-fill:balance]"><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:0"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-portrait.jpg" alt="Close studio portrait with layered pearl necklaces" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">STUDIO SESSION / FRAME 02</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:1.5rem"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-branding.jpg" alt="Sourdough workshop group sharing brownies and bread" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">BRAND DAY / THE WORKSHOP</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:0"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-fashion.jpg" alt="Editorial portrait on a basketball, lace tights and heels" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">EDITORIAL / COURTSIDE</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:0"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-event.jpg" alt="Tattoo artist at work under a single light" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">ON LOCATION / INK</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:1.5rem"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-family.jpg" alt="Family playing in the shallows at an Adelaide beach" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">GOLDEN HOUR / THE SHALLOWS</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:0"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-product.jpg" alt="Pink Stachio spread jar with pistachios and strawberries" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">PRODUCT / PINK STACHIO</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:0"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-couple.jpg" alt="Couple sharing an ultrasound announcement under a tree" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">ANNOUNCEMENT / PLUS ONE</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:1.5rem"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-bts.jpg" alt="Pink picnic campaign flat lay with cake and pastries" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">CAMPAIGN / THE PICNIC</figcaption></figure><figure class="mb-4 break-inside-avoid md:mb-6" style="padding-top:0"><div class="overflow-hidden bg-[var(--cc-ground-2)]"><img src="/assets/work-beach.jpg" alt="Mother and son laughing on the sand at sunset" loading="lazy" class="h-auto w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"/></div><figcaption class="cc-mono mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">SUNSET / MUM AND ME</figcaption></figure></div><p class="cc-mono mt-10 max-w-[52ch] text-xs leading-relaxed text-[var(--cc-smoke)]">A slice of the archive. The full contact sheets live at<!-- --> <a href="https://www.instagram.com/candidcapturesa/" target="_blank" rel="noreferrer" class="text-[var(--cc-bone)] underline decoration-[var(--cc-plum)] underline-offset-4">@candidcapturesa</a>.</p></section><section id="services" class="px-6 py-20 md:px-14 md:py-28"><h2 class="max-w-[24ch] text-3xl font-bold tracking-tight text-[var(--cc-bone)] md:text-5xl">What I shoot</h2><p class="mt-4 max-w-[52ch] text-base leading-relaxed text-[var(--cc-smoke)]">Almost anything. The honest exceptions: weddings, newborns and animals are not my lane.</p><div class="mt-12 border-t border-[var(--cc-hairline)]"><div class="border-b border-[var(--cc-hairline)]"><button type="button" aria-expanded="true" class="group flex w-full items-baseline gap-6 py-6 text-left md:py-8"><span class="cc-mono text-sm text-[var(--cc-brown)]">01</span><span class="text-4xl font-bold tracking-tight transition-transform duration-300 group-hover:translate-x-2 md:text-7xl">Portraits</span><span aria-hidden="true" class="cc-mono ml-auto text-xl transition-transform duration-300 rotate-45 text-[var(--cc-brown)]">+</span></button><div class="grid transition-[grid-template-rows] duration-500 ease-out" style="grid-template-rows:1fr"><div class="overflow-hidden"><div class="flex flex-col gap-6 pb-8 pl-0 md:flex-row md:items-center md:pl-14"><img src="/assets/work-portrait.jpg" alt="" loading="lazy" class="h-36 w-full object-cover md:h-40 md:w-72"/><p class="max-w-[44ch] text-base leading-relaxed text-[var(--cc-smoke)]">Studio or on location. You, without the stiff catalogue pose: the in-between expressions are the keepers.</p></div></div></div></div><div class="border-b border-[var(--cc-hairline)]"><button type="button" aria-expanded="false" class="group flex w-full items-baseline gap-6 py-6 text-left md:py-8"><span class="cc-mono text-sm text-[var(--cc-smoke)]">02</span><span class="text-4xl font-bold tracking-tight transition-transform duration-300 group-hover:translate-x-2 md:text-7xl">Branding</span><span aria-hidden="true" class="cc-mono ml-auto text-xl transition-transform duration-300 text-[var(--cc-smoke)]">+</span></button><div class="grid transition-[grid-template-rows] duration-500 ease-out" style="grid-template-rows:0fr"><div class="overflow-hidden"><div class="flex flex-col gap-6 pb-8 pl-0 md:flex-row md:items-center md:pl-14"><img src="/assets/work-bts.jpg" alt="" loading="lazy" class="h-36 w-full object-cover md:h-40 md:w-72"/><p class="max-w-[44ch] text-base leading-relaxed text-[var(--cc-smoke)]">Content for businesses that want to look like themselves. Founders, teams, product, the room you work in.</p></div></div></div></div><div class="border-b border-[var(--cc-hairline)]"><button type="button" aria-expanded="false" class="group flex w-full items-baseline gap-6 py-6 text-left md:py-8"><span class="cc-mono text-sm text-[var(--cc-smoke)]">03</span><span class="text-4xl font-bold tracking-tight transition-transform duration-300 group-hover:translate-x-2 md:text-7xl">Events</span><span aria-hidden="true" class="cc-mono ml-auto text-xl transition-transform duration-300 text-[var(--cc-smoke)]">+</span></button><div class="grid transition-[grid-template-rows] duration-500 ease-out" style="grid-template-rows:0fr"><div class="overflow-hidden"><div class="flex flex-col gap-6 pb-8 pl-0 md:flex-row md:items-center md:pl-14"><img src="/assets/work-branding.jpg" alt="" loading="lazy" class="h-36 w-full object-cover md:h-40 md:w-72"/><p class="max-w-[44ch] text-base leading-relaxed text-[var(--cc-smoke)]">Launches, workshops, parties. I move through the room quietly and bring back what it actually felt like.</p></div></div></div></div><div class="border-b border-[var(--cc-hairline)]"><button type="button" aria-expanded="false" class="group flex w-full items-baseline gap-6 py-6 text-left md:py-8"><span class="cc-mono text-sm text-[var(--cc-smoke)]">04</span><span class="text-4xl font-bold tracking-tight transition-transform duration-300 group-hover:translate-x-2 md:text-7xl">Special moments</span><span aria-hidden="true" class="cc-mono ml-auto text-xl transition-transform duration-300 text-[var(--cc-smoke)]">+</span></button><div class="grid transition-[grid-template-rows] duration-500 ease-out" style="grid-template-rows:0fr"><div class="overflow-hidden"><div class="flex flex-col gap-6 pb-8 pl-0 md:flex-row md:items-center md:pl-14"><img src="/assets/work-couple.jpg" alt="" loading="lazy" class="h-36 w-full object-cover md:h-40 md:w-72"/><p class="max-w-[44ch] text-base leading-relaxed text-[var(--cc-smoke)]">Engagements, announcements, baby showers, the days you wish you could rewind. Documented, not staged.</p></div></div></div></div></div></section><section id="packages" class="border-t border-[var(--cc-hairline)] px-6 py-20 md:px-14 md:py-28"><div class="mx-auto max-w-5xl"><p class="cc-mono text-xs uppercase tracking-[0.28em] text-[var(--cc-smoke)]">Price packages 2026/27</p><div class="mt-10 flex flex-wrap gap-x-8 gap-y-3"><button type="button" class="relative pb-2 text-lg font-bold tracking-tight transition-colors md:text-2xl text-[var(--cc-bone)]">Portraits<span class="absolute bottom-0 left-0 h-0.5 w-full bg-[var(--cc-plum)] transition-transform duration-300 origin-left scale-x-100"></span></button><button type="button" class="relative pb-2 text-lg font-bold tracking-tight transition-colors md:text-2xl text-[var(--cc-smoke)] hover:text-[var(--cc-bone)]">Branding<span class="absolute bottom-0 left-0 h-0.5 w-full bg-[var(--cc-plum)] transition-transform duration-300 origin-left scale-x-0"></span></button><button type="button" class="relative pb-2 text-lg font-bold tracking-tight transition-colors md:text-2xl text-[var(--cc-smoke)] hover:text-[var(--cc-bone)]">Events<span class="absolute bottom-0 left-0 h-0.5 w-full bg-[var(--cc-plum)] transition-transform duration-300 origin-left scale-x-0"></span></button><button type="button" class="relative pb-2 text-lg font-bold tracking-tight transition-colors md:text-2xl text-[var(--cc-smoke)] hover:text-[var(--cc-bone)]">Moments<span class="absolute bottom-0 left-0 h-0.5 w-full bg-[var(--cc-plum)] transition-transform duration-300 origin-left scale-x-0"></span></button></div><p class="mt-6 max-w-[60ch] text-base leading-relaxed text-[var(--cc-smoke)]">Real, personality-packed shots. No stiff poses, no fake smiles.</p><div class="mt-8 border-t border-[var(--cc-hairline)]"><div class="grid items-baseline gap-x-6 gap-y-1 border-b border-[var(--cc-hairline)] py-5 md:grid-cols-[1fr_auto_auto_auto] md:py-6"><div><p class="text-xl font-bold tracking-tight md:text-2xl">Rapid Session</p><p class="cc-mono mt-1 text-[11px] uppercase tracking-[0.16em] text-[var(--cc-smoke)]">1hr<!-- --> / <!-- -->5 edited images<!-- --> / online gallery</p></div><p class="cc-mono text-base text-[var(--cc-bone)] md:text-lg">from $150</p><button type="button" class="cc-mono w-fit text-sm text-[var(--cc-smoke)] transition-colors hover:text-[var(--cc-plum)]">[ Enquire ]</button></div><div class="grid items-baseline gap-x-6 gap-y-1 border-b border-[var(--cc-hairline)] py-5 md:grid-cols-[1fr_auto_auto_auto] md:py-6"><div><p class="text-xl font-bold tracking-tight md:text-2xl">Standard Session</p><p class="cc-mono mt-1 text-[11px] uppercase tracking-[0.16em] text-[var(--cc-smoke)]">2hr<!-- --> / <!-- -->10 edited images<!-- --> / pre-shoot consult<!-- --> / online gallery</p></div><p class="cc-mono text-base text-[var(--cc-bone)] md:text-lg">from $280</p><button type="button" class="cc-mono w-fit text-sm text-[var(--cc-smoke)] transition-colors hover:text-[var(--cc-plum)]">[ Enquire ]</button></div><div class="grid items-baseline gap-x-6 gap-y-1 border-b border-[var(--cc-hairline)] py-5 md:grid-cols-[1fr_auto_auto_auto] md:py-6"><div><p class="text-xl font-bold tracking-tight md:text-2xl">Premium Session</p><p class="cc-mono mt-1 text-[11px] uppercase tracking-[0.16em] text-[var(--cc-smoke)]">4hr<!-- --> / <!-- -->25 edited images<!-- --> / pre-shoot consult<!-- --> / online gallery</p></div><p class="cc-mono text-base text-[var(--cc-bone)] md:text-lg">from $500</p><button type="button" class="cc-mono w-fit text-sm text-[var(--cc-smoke)] transition-colors hover:text-[var(--cc-plum)]">[ Enquire ]</button></div></div><p class="cc-mono mt-6 text-[11px] leading-relaxed text-[var(--cc-smoke)]">Starting prices. 30% deposit locks your date. Travel free within 10km of home base, then $0.99/km. Studio hire billed at cost. Finals land in 1 to 2 weeks.</p></div></section><section id="about" class="relative px-6 py-20 md:px-14 md:py-28" style="background-image:url(/assets/plate.jpg);background-size:cover;background-position:center"><div class="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2"><div><h2 class="text-4xl font-black tracking-tighter md:text-6xl">Slightly mysterious. Entirely candid.</h2><p class="mt-8 max-w-[52ch] text-base leading-relaxed text-[var(--cc-smoke)]">Hi, I&#x27;m Abbey. I photograph people the way a small tucked-away restaurant feeds them: few seats, full attention, nothing off a template. I started shooting to hold onto the moments our memories cannot always hold, and that is still the job.</p><p class="mt-4 max-w-[52ch] text-base leading-relaxed text-[var(--cc-smoke)]">Based in Adelaide. Portraits, branding, product and events; travel is free within 10km and $0.99 per km after that. If you want stiff poses and fake smiles, I know some lovely photographers I can refer you to.</p><p class="cc-mono mt-8 text-xs uppercase tracking-[0.22em] text-[var(--cc-smoke)]">Abbey Molina / she/her / Adelaide, AUS</p></div><figure class="relative mx-auto w-full max-w-md"><div class="absolute -inset-1 bg-[var(--cc-plum)]/25 blur-xl" aria-hidden="true"></div><img src="/assets/about.jpg" alt="Moody studio portrait from a Candid Captures session, leather jacket and sunglasses" loading="lazy" class="relative w-full object-cover"/><figcaption class="cc-mono mt-3 text-right text-[10px] uppercase tracking-[0.18em] text-[var(--cc-smoke)]">From a studio session, Adelaide</figcaption></figure></div></section><section id="enquiry" class="px-6 py-20 md:py-28"><div class="mx-auto max-w-xl border border-[var(--cc-bone)]/40 p-8 md:p-12"><h2 class="text-3xl font-black tracking-tighter md:text-4xl">Start the enquiry</h2><p class="mt-3 text-base leading-relaxed text-[var(--cc-smoke)]">Tell me what we&#x27;re shooting. Replies within 48 hours.</p><form class="mt-10 flex flex-col gap-6" noValidate=""><div class="flex flex-col gap-2"><label for="name" class="cc-mono text-xs uppercase tracking-[0.2em] text-[var(--cc-smoke)]">Name</label><input id="name" type="text" autoComplete="name" required="" class="border-b border-[var(--cc-hairline)] bg-transparent py-2 text-base text-[var(--cc-bone)] outline-none transition-colors focus:border-[var(--cc-plum)]" name="name"/></div><div class="flex flex-col gap-2"><label for="email" class="cc-mono text-xs uppercase tracking-[0.2em] text-[var(--cc-smoke)]">Email</label><input id="email" type="email" autoComplete="email" required="" class="border-b border-[var(--cc-hairline)] bg-transparent py-2 text-base text-[var(--cc-bone)] outline-none transition-colors focus:border-[var(--cc-plum)]" name="email"/></div><div class="flex flex-col gap-2"><label for="shootType" class="cc-mono text-xs uppercase tracking-[0.2em] text-[var(--cc-smoke)]">What are we shooting</label><input id="shootType" type="text" required="" class="border-b border-[var(--cc-hairline)] bg-transparent py-2 text-base text-[var(--cc-bone)] outline-none transition-colors focus:border-[var(--cc-plum)]" name="shootType" value=""/></div><div class="flex flex-col gap-2"><label for="message" class="cc-mono text-xs uppercase tracking-[0.2em] text-[var(--cc-smoke)]">Tell me more</label><textarea id="message" name="message" rows="4" class="resize-y border-b border-[var(--cc-hairline)] bg-transparent py-2 text-base text-[var(--cc-bone)] outline-none transition-colors focus:border-[var(--cc-plum)]"></textarea></div><button type="submit" class="mt-2 border border-[var(--cc-bone)]/60 px-8 py-4 text-base font-bold tracking-tight text-[var(--cc-bone)] transition-all duration-200 hover:border-[var(--cc-plum)] hover:bg-[var(--cc-plum)] active:scale-[0.98] disabled:opacity-60">Send enquiry</button><p class="cc-mono text-[11px] leading-relaxed text-[var(--cc-smoke)]">Prefer email? Write to<!-- --> <a href="mailto:candidcapturesam@gmail.com" class="text-[var(--cc-bone)] underline decoration-[var(--cc-plum)] underline-offset-4">candidcapturesam@gmail.com</a> <!-- -->or DM<!-- --> <a href="https://www.instagram.com/candidcapturesa/" target="_blank" rel="noreferrer" class="text-[var(--cc-bone)] underline decoration-[var(--cc-plum)] underline-offset-4">@candidcapturesa</a>.</p></form></div></section></main><footer class="border-t border-[var(--cc-hairline)] px-6 py-14 md:px-14"><div class="flex flex-col gap-10 md:flex-row md:items-end md:justify-between"><div><p class="text-2xl font-black uppercase tracking-tight">Candid Captures</p><p class="cc-mono mt-2 text-xs uppercase tracking-[0.2em] text-[var(--cc-smoke)]">Abbey Molina / Adelaide, South Australia</p></div><div class="cc-mono flex flex-col gap-2 text-xs text-[var(--cc-smoke)] md:text-right"><a href="mailto:candidcapturesam@gmail.com" class="transition-colors hover:text-[var(--cc-bone)]">candidcapturesam@gmail.com</a><a href="https://www.instagram.com/candidcapturesa/" target="_blank" rel="noreferrer" class="transition-colors hover:text-[var(--cc-bone)]">Instagram / @candidcapturesa</a><a href="https://www.facebook.com/CandidCaptures" target="_blank" rel="noreferrer" class="transition-colors hover:text-[var(--cc-bone)]">Facebook / CandidCaptures</a></div></div><div class="cc-mono mt-10 grid gap-2 border-t border-[var(--cc-hairline)] pt-6 text-[10px] uppercase tracking-[0.14em] text-[var(--cc-smoke)] sm:grid-cols-2 md:grid-cols-4"><p>30% deposit locks the date</p><p>Finals in 1 to 2 weeks</p><p>Reschedule with 48hrs notice</p><p>Full personal + business image use</p></div></footer></div><script>(function(a,f){let l;try{l=JSON.parse(sessionStorage.getItem(a)||"{}")}catch{return}const n=l?.[f||history.state?.__TSR_key];let c=!1;for(const t in n){const e=n[t],o=e?.scrollX,s=e?.scrollY;if(Number.isFinite(o)&&Number.isFinite(s)){if(t==="window")scrollTo(o,s),c=!0;else if(t)try{const r=document.querySelector(t);r&&(r.scrollLeft=o,r.scrollTop=s)}catch{}}}if(c)return;const i=location.hash.slice(1);if(i){const t=history.state?.__hashScrollIntoViewOptions??!0;if(t){const e=document.getElementById(i);e&&e.scrollIntoView(t)}return}scrollTo(0,0)})("tsr-scroll-restoration-v1_3");document.currentScript.remove()</script><!--/$--><script class="$tsr" id="$tsr-stream-barrier">(self.$R=self.$R||{})["tsr"]=[];self.$_TSR={h(){this.hydrated=!0,this.c()},e(){this.streamEnded=!0,this.c()},c(){this.hydrated&&this.streamEnded&&(delete self.$_TSR,delete self.$R.tsr)},p(e){this.initialized?e():this.buffer.push(e)},buffer:[]};$_TSR.router=($R=>$R[0]={manifest:$R[1]={routes:$R[2]={__root__:$R[3]={preloads:$R[4]=["/assets/index.js"],scripts:$R[5]=[$R[6]={attrs:$R[7]={type:"module",async:!0,src:"/assets/index.js"}}]},"/":$R[8]={preloads:$R[9]=["/assets/index.js"]}}},matches:$R[10]=[$R[11]={i:"__root__ ",u:1783587361957,s:"success",ssr:!0},$R[12]={i:"  ",u:1783587361957,s:"success",ssr:!0}],lastMatchId:"  "})($R["tsr"]);$_TSR.e();document.currentScript.remove()</script><script type="module" async="" src="/assets/index.js"></script></body></html>
