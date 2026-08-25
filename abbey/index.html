@@ -2,432 +2,437 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Abbey · Command Centre</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --void:#0a0413; --ink:#150d1d; --card:#1a1230; --elev:#251d3a;
-  --violet:#7c3aed; --violet-2:#9061ff; --plum:#513963; --amber:#f5a04a;
-  --text:#efeaf7; --text-dim:rgba(239,234,247,.6); --text-mute:rgba(239,234,247,.35);
-  --border:rgba(196,165,255,.14); --border-hi:rgba(196,165,255,.28);
-  --pink:#ff9aa2; --peach:#f5a04a; --mint:#7dd3a4; --sky:#93c5fd;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--void);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
+:root{--void:#0a0413;--ink:#150d1d;--card:#1a1230;--elev:#251d3a;--violet:#7c3aed;--violet-2:#9061ff;--violet-3:#c4a5ff;--plum:#513963;--amber:#f5a04a;--pink:#ff9aa2;--mint:#7dd3a4;--sky:#93c5fd;--terra:#c96a52;--rose:#d8a5a5;--olive:#a89967;--sand:#c9b78a;--text:#efeaf7;--text-dim:rgba(239,234,247,.62);--text-mute:rgba(239,234,247,.36);--border:rgba(196,165,255,.14);--border-hi:rgba(196,165,255,.28);--danger:#ff6b7a}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--void);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100vh;-webkit-tap-highlight-color:transparent}
+input,button,textarea,select{font-family:inherit}
+button{cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
 .serif{font-family:'Cormorant Garamond',Georgia,serif}
 .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
-
+.req{color:var(--danger);font-weight:700}
 #abbey-gate{position:fixed;inset:0;z-index:2147483647;background:var(--void);display:flex;align-items:center;justify-content:center}
-#abbey-gate .g-card{background:rgba(255,255,255,.04);border:1px solid var(--border-hi);border-radius:24px;padding:56px 48px;width:min(420px,90vw);text-align:center;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.6)}
-#abbey-gate .g-brand{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:#c4a5ff;margin-bottom:20px}
-#abbey-gate .g-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:38px;font-weight:400;color:#fff;margin:0 0 8px}
-#abbey-gate .g-sub{font-size:14px;color:var(--text-dim);margin:0 0 32px}
-#abbey-gate input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(196,165,255,.22);border-radius:12px;padding:16px 18px;color:#fff;font-size:16px;letter-spacing:.05em;text-align:center;outline:none;font-family:inherit}
-#abbey-gate input:focus{border-color:#c4a5ff;background:rgba(255,255,255,.09)}
-#abbey-gate button{width:100%;margin-top:14px;background:var(--violet);color:#fff;border:none;border-radius:12px;padding:16px;font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-family:inherit}
+#abbey-gate .g-card{background:rgba(255,255,255,.04);border:1px solid var(--border-hi);border-radius:24px;padding:48px 40px;width:min(400px,92vw);text-align:center;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#abbey-gate .g-brand{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--violet-3);margin-bottom:20px}
+#abbey-gate .g-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:34px;font-weight:400;color:#fff;margin:0 0 8px}
+#abbey-gate .g-sub{font-size:14px;color:var(--text-dim);margin:0 0 28px}
+#abbey-gate input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(196,165,255,.22);border-radius:12px;padding:15px;color:#fff;font-size:16px;text-align:center;outline:none}
+#abbey-gate input:focus{border-color:var(--violet-3)}
+#abbey-gate button{width:100%;margin-top:12px;background:var(--violet);color:#fff;border-radius:12px;padding:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:13px}
 #abbey-gate button:hover{background:var(--violet-2)}
-#abbey-gate .g-err{color:var(--pink);font-size:13px;margin-top:14px;min-height:18px}
+#abbey-gate .g-err{color:var(--pink);font-size:13px;margin-top:12px;min-height:18px}
 @keyframes ash{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 #abbey-gate.shake .g-card{animation:ash .4s}
-
 .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
-.sidebar{background:linear-gradient(180deg,#100820 0%,#0a0413 100%);border-right:1px solid var(--border);padding:28px 20px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;overflow-y:auto}
-.brand{display:flex;align-items:center;gap:12px;padding:0 6px 24px;border-bottom:1px solid var(--border);margin-bottom:20px}
-.brand .orb{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#c4a5ff,var(--violet) 45%,var(--plum) 90%);box-shadow:0 0 24px rgba(124,58,237,.4)}
-.brand .b-txt{display:flex;flex-direction:column}
+.sidebar{background:linear-gradient(180deg,#100820,#0a0413);border-right:1px solid var(--border);padding:24px 18px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:20}
+.brand{display:flex;align-items:center;gap:12px;padding:0 6px 22px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.brand .orb{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--violet-3),var(--violet) 45%,var(--plum));box-shadow:0 0 22px rgba(124,58,237,.4);flex:none}
 .brand .b-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:#fff;line-height:1}
-.brand .b-sub{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#c4a5ff;margin-top:4px}
-
-.nav-lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-mute);padding:14px 12px 8px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:var(--text-dim);cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;border:1px solid transparent}
+.brand .b-sub{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--violet-3);margin-top:3px}
+.nav-lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-mute);padding:12px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:var(--text-dim);cursor:pointer;font-size:14.5px;font-weight:500;transition:all .15s;border:1px solid transparent}
 .nav-item:hover{background:rgba(124,58,237,.08);color:var(--text)}
 .nav-item.active{background:rgba(124,58,237,.18);color:#fff;border-color:rgba(124,58,237,.35);box-shadow:0 0 20px rgba(124,58,237,.15)}
-.nav-item .ico{width:16px;height:16px;flex:none;opacity:.85;display:inline-block;text-align:center}
-.nav-dreams{margin-top:auto;padding-top:20px;border-top:1px solid var(--border)}
+.nav-item .ico{width:16px;text-align:center;opacity:.85}
+.nav-dreams{margin-top:auto;padding-top:18px;border-top:1px solid var(--border)}
 .nav-dreams .nav-item{background:linear-gradient(135deg,rgba(240,138,208,.08),rgba(124,58,237,.08));border:1px solid rgba(240,138,208,.2)}
-.nav-dreams .nav-item:hover,.nav-dreams .nav-item.active{background:linear-gradient(135deg,rgba(240,138,208,.2),rgba(124,58,237,.2));border-color:rgba(240,138,208,.5);color:#fff}
-
-.main{padding:36px 44px 60px;max-width:1440px;width:100%;margin:0 auto}
-.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;gap:32px;flex-wrap:wrap}
-.hdr .greet{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:46px;font-weight:400;color:#fff;line-height:1.1;margin:0}
+.nav-dreams .nav-item.active{background:linear-gradient(135deg,rgba(240,138,208,.22),rgba(124,58,237,.22));border-color:rgba(240,138,208,.5);color:#fff}
+.mburger{display:none;position:fixed;top:14px;left:14px;z-index:30;width:44px;height:44px;background:rgba(26,18,48,.85);border:1px solid var(--border-hi);border-radius:10px;color:#fff;font-size:22px;line-height:44px;text-align:center;backdrop-filter:blur(10px)}
+.main{padding:32px 40px 60px;max-width:1400px;width:100%;margin:0 auto;min-width:0}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;gap:24px;flex-wrap:wrap}
+.hdr .greet{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:42px;font-weight:400;color:#fff;line-height:1.1;margin:0}
 .hdr .meta{font-size:13px;color:var(--text-dim);margin-top:10px}
 .hdr .today{text-align:right;font-size:13px;color:var(--text-dim)}
 .hdr .today .date{font-size:15px;color:#fff;font-weight:600;margin-bottom:4px}
-
-.section{display:none}
-.section.active{display:block;animation:fade .3s}
+@media(max-width:900px){.mburger{display:block}.app{grid-template-columns:1fr}.sidebar{position:fixed;top:0;left:-280px;height:100vh;width:260px;transition:left .3s;z-index:40;box-shadow:6px 0 40px rgba(0,0,0,.6)}.sidebar.open{left:0}.main{padding:70px 18px 40px}.hdr .greet{font-size:32px}.hdr .today{text-align:left}}
+.section{display:none}.section.active{display:block;animation:fade .3s}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-.grid{display:grid;gap:20px}
-.grid.g4{grid-template-columns:repeat(4,1fr)}
-.grid.g3{grid-template-columns:repeat(3,1fr)}
-.grid.g2{grid-template-columns:1fr 1fr}
-@media(max-width:1000px){.grid.g4{grid-template-columns:repeat(2,1fr)}.grid.g3{grid-template-columns:1fr}.grid.g2{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px}
-.card.hi{background:linear-gradient(135deg,var(--card) 0%,rgba(124,58,237,.06) 100%);border-color:var(--border-hi)}
-.card h3{margin:0 0 4px;font-size:14px;font-weight:600;color:var(--text-dim);letter-spacing:.02em}
-.card .big{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:500;color:#fff;line-height:1;margin:12px 0 4px}
-.card .sub{font-size:13px;color:var(--text-mute)}
-.card .accent{color:#c4a5ff}
-
-.sec-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:16px;flex-wrap:wrap}
-.sec-h h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:36px;font-weight:400;color:#fff;margin:0}
-.sec-h .desc{font-size:14px;color:var(--text-dim);margin-top:4px}
-.btn{background:var(--violet);color:#fff;border:none;border-radius:999px;padding:11px 22px;font-size:13px;font-weight:600;letter-spacing:.05em;cursor:pointer;font-family:inherit}
+.grid{display:grid;gap:18px}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
+@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:600px){.g4{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+.card.hi{background:linear-gradient(135deg,var(--card),rgba(124,58,237,.06));border-color:var(--border-hi)}
+.card h3{margin:0 0 4px;font-size:13.5px;font-weight:600;color:var(--text-dim)}
+.card .big{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:500;color:#fff;line-height:1;margin:10px 0 4px}
+.card .sub{font-size:12.5px;color:var(--text-mute)}.card .accent{color:var(--violet-3)}
+.sec-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:14px;flex-wrap:wrap}
+.sec-h h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:34px;font-weight:400;color:#fff;margin:0;line-height:1.1}
+.sec-h .desc{font-size:13.5px;color:var(--text-dim);margin-top:4px;max-width:56ch}
+.btn{background:var(--violet);color:#fff;border-radius:999px;padding:11px 20px;font-size:13px;font-weight:600;letter-spacing:.04em}
 .btn:hover{background:var(--violet-2)}
 .btn.ghost{background:transparent;border:1px solid var(--border-hi);color:var(--text)}
-
+.btn.ghost:hover{background:rgba(124,58,237,.08)}
+.btn.danger{background:transparent;border:1px solid rgba(255,107,122,.4);color:var(--pink)}
+.btn.danger:hover{background:rgba(255,107,122,.08)}
+.btn.sm{padding:8px 14px;font-size:12px}
 .list{display:flex;flex-direction:column;gap:10px}
-.list-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;transition:border-color .15s}
-.list-item:hover{border-color:var(--border-hi)}
+.list-item{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--card);border:1px solid var(--border);border-radius:12px}
 .list-item .dot{width:8px;height:8px;border-radius:50%;background:var(--violet);flex:none}
-.list-item .dot.mint{background:var(--mint)}
-.list-item .dot.peach{background:var(--peach)}
-.list-item .dot.pink{background:var(--pink)}
+.list-item .dot.mint{background:var(--mint)}.list-item .dot.peach{background:var(--amber)}.list-item .dot.pink{background:var(--pink)}
 .list-item .txt{flex:1;min-width:0}
 .list-item .txt .t{color:#fff;font-weight:500;font-size:14.5px}
 .list-item .txt .s{color:var(--text-dim);font-size:12.5px;margin-top:3px}
 .list-item .r{color:var(--text-dim);font-size:12px;font-family:'JetBrains Mono',monospace;flex:none}
-
-.todo-item{cursor:pointer}
-.todo-item.done .txt .t{color:var(--text-mute);text-decoration:line-through}
-.todo-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-hi);flex:none;display:grid;place-items:center;transition:all .15s}
+.list-item .x{color:var(--text-mute);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.list-item .x:hover{color:var(--pink);background:rgba(255,107,122,.08)}
+.todo-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-hi);flex:none;display:grid;place-items:center}
 .todo-item.done .todo-check{background:var(--violet);border-color:var(--violet)}
-.todo-check svg{opacity:0;transition:opacity .15s}
-.todo-item.done .todo-check svg{opacity:1}
-
-.emerg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.todo-check svg{opacity:0}.todo-item.done .todo-check svg{opacity:1}
+.todo-item.done .txt .t{color:var(--text-mute);text-decoration:line-through}
+.field{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;outline:none}
+.field:focus{border-color:var(--violet)}.field::placeholder{color:var(--text-mute)}
+textarea.field{resize:vertical;min-height:70px}
+.label{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.add-row{display:flex;gap:10px;margin-top:12px}.add-row .field{flex:1}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin-bottom:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+.emerg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:900px){.emerg-grid{grid-template-columns:1fr 1fr}}
-.emerg{background:linear-gradient(135deg,rgba(255,154,162,.1),rgba(124,58,237,.05));border:1px solid rgba(255,154,162,.25);border-radius:14px;padding:18px;text-decoration:none;color:inherit;display:block;transition:all .15s}
+@media(max-width:500px){.emerg-grid{grid-template-columns:1fr}}
+.emerg{background:linear-gradient(135deg,rgba(255,154,162,.1),rgba(124,58,237,.05));border:1px solid rgba(255,154,162,.25);border-radius:14px;padding:16px;text-decoration:none;color:inherit;display:block;transition:all .15s;position:relative}
 .emerg:hover{border-color:rgba(255,154,162,.5);transform:translateY(-2px)}
 .emerg .role{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--pink);margin-bottom:6px;font-weight:600}
-.emerg .name{color:#fff;font-weight:600;font-size:15px;margin-bottom:4px}
-.emerg .num{font-family:'JetBrains Mono',monospace;color:#fff;font-size:16px;font-weight:500}
-
-.cai-hero{background:linear-gradient(135deg,rgba(147,197,253,.1),rgba(125,211,164,.06));border:1px solid rgba(147,197,253,.2);border-radius:20px;padding:44px;margin-bottom:24px;text-align:center}
-.cai-hero .h{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:44px;color:#fff;margin:0 0 10px}
-.cai-hero .p{color:var(--text-dim);font-size:15.5px;max-width:540px;margin:0 auto;line-height:1.6}
-
-.dream-grid{columns:3;column-gap:16px}
+.emerg .name{color:#fff;font-weight:600;font-size:14.5px;margin-bottom:4px}
+.emerg .num{font-family:'JetBrains Mono',monospace;color:#fff;font-size:15px;font-weight:500}
+.emerg .del{position:absolute;top:8px;right:10px;color:var(--text-mute);font-size:16px;padding:4px 8px;cursor:pointer}
+.emerg .del:hover{color:var(--pink)}
+.cai-hero{background:linear-gradient(135deg,rgba(147,197,253,.1),rgba(125,211,164,.06));border:1px solid rgba(147,197,253,.2);border-radius:20px;padding:34px 24px;margin-bottom:24px;text-align:center}
+.cai-hero .h{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:38px;color:#fff;margin:0 0 8px}
+.cai-hero .p{color:var(--text-dim);font-size:14.5px;max-width:480px;margin:0 auto;line-height:1.6}
+.cai-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.cai-photo{aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--border);background-size:cover;background-position:center;position:relative;cursor:pointer;transition:transform .2s}
+.cai-photo:hover{transform:scale(1.03)}
+.cai-photo .cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));padding:14px 10px 8px;font-size:11px;color:#fff}
+.cai-photo .del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;line-height:22px;text-align:center}
+.upload{border:2px dashed var(--border-hi);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.02);display:block}
+.upload:hover{border-color:var(--violet);background:rgba(124,58,237,.05)}
+.upload .u-t{font-weight:600;color:#fff;margin-bottom:4px}
+.upload .u-s{font-size:12.5px;color:var(--text-dim)}
+input[type=file]{display:none}
+.dream-grid{columns:3;column-gap:14px}
 @media(max-width:1000px){.dream-grid{columns:2}}
 @media(max-width:600px){.dream-grid{columns:1}}
-.dream{break-inside:avoid;margin-bottom:16px;border-radius:16px;overflow:hidden;position:relative;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:transform .25s,border-color .25s}
+.dream{break-inside:avoid;margin-bottom:14px;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:all .25s;position:relative}
 .dream:hover{transform:scale(1.02);border-color:var(--border-hi)}
-.dream .img{width:100%;display:block;background-size:cover;background-position:center}
+.dream .img{width:100%;background-size:cover;background-position:center;min-height:180px}
 .dream .cap{padding:14px 16px 16px;border-top:1px solid var(--border)}
-.dream .cap .cat{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#c4a5ff;font-weight:600;margin-bottom:6px}
-.dream .cap .t{color:#fff;font-size:15px;font-weight:500;line-height:1.35}
-
-.seg{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px}
-.seg h4{margin:0 0 14px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#c4a5ff;font-weight:600}
-.seg .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--border);gap:12px}
-.seg .row:last-child{border:none}
-.seg .row .k{color:var(--text-dim);font-size:14px}
-.seg .row .v{color:#fff;font-weight:500;font-family:'JetBrains Mono',monospace;font-size:14px}
-
+.dream .cap .cat{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--violet-3);font-weight:600;margin-bottom:6px}
+.dream .cap .t{color:#fff;font-size:15px;font-weight:500;line-height:1.35;margin-bottom:8px}
+.dream .cap .p{color:var(--text-dim);font-size:12.5px;line-height:1.5}
+.dream .cap .meta{display:flex;justify-content:space-between;margin-top:10px;font-size:11.5px;color:var(--text-mute)}
+.dream .del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;border-radius:50%;width:26px;height:26px;font-size:14px;line-height:26px;text-align:center;opacity:0;transition:opacity .2s}
+.dream:hover .del{opacity:1}
+.seg{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.seg h4{margin:0 0 14px;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--violet-3);font-weight:600}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--border);gap:12px;flex-wrap:wrap}
+.row:last-child{border:none}
+.row .k{color:var(--text-dim);font-size:13.5px}
+.row .v{color:#fff;font-weight:500;font-family:'JetBrains Mono',monospace;font-size:13.5px}
+.row .v.editable{cursor:text;padding:4px 10px;border-radius:6px;border:1px dashed transparent;min-width:100px;text-align:right}
+.row .v.editable:hover{border-color:var(--border-hi);background:rgba(255,255,255,.03)}
+.row .v.editable:focus{outline:none;border-color:var(--violet);background:rgba(124,58,237,.06)}
 .bar{height:8px;background:rgba(196,165,255,.1);border-radius:99px;overflow:hidden;margin-top:8px}
-.bar .fill{height:100%;background:linear-gradient(90deg,var(--violet),#c4a5ff);border-radius:99px;transition:width .4s}
-
-.field{width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;font-family:inherit;outline:none;margin-top:6px}
-.field:focus{border-color:var(--violet)}
-.add-row{display:flex;gap:10px;margin-top:12px}
-.add-row .field{margin:0}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--violet-3));border-radius:99px;transition:width .4s}
+.sheet{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}
+.sheet th,.sheet td{padding:11px 12px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--border)}
+.sheet th{background:rgba(124,58,237,.1);color:var(--violet-3);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.sheet td{color:var(--text)}
+.sheet td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+.sheet input.field{padding:6px 10px;font-size:13px;background:transparent;border:1px solid transparent;border-radius:6px}
+.sheet input.field:hover{border-color:var(--border)}
+.sheet input.field:focus{border-color:var(--violet);background:rgba(124,58,237,.06)}
+.sheet tr.income td.num{color:var(--mint)}
+.sheet tr.expense td.num{color:var(--pink)}
+.sheet-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+.cal .dh{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-mute);text-align:center;padding:8px 4px}
+.cal .day{aspect-ratio:1;background:rgba(255,255,255,.02);border-radius:8px;padding:6px;font-size:12px;color:var(--text-dim);position:relative;cursor:pointer;display:flex;flex-direction:column;transition:background .15s;overflow:hidden}
+.cal .day:hover{background:rgba(124,58,237,.08)}
+.cal .day.today{border:1px solid var(--violet);color:#fff}
+.cal .day.other{opacity:.28}
+.cal .day .n{font-weight:600;font-size:13px;color:var(--text);margin-bottom:2px}
+.cal .day .b{margin-top:auto;font-size:9.5px;line-height:1.2;padding:2px 4px;border-radius:4px;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 4px;flex-wrap:wrap;gap:10px}
+.cal-h .m{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:#fff}
+.cal-h .nav{display:flex;gap:8px}
+.cal-h .nav .btn{padding:6px 12px;font-size:12px}
+.book-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+@media(max-width:900px){.book-list{grid-template-columns:1fr}}
+.book-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;border-left:4px solid var(--violet);cursor:pointer;transition:all .15s}
+.book-card:hover{border-color:var(--border-hi);transform:translateY(-1px)}
+.book-card .bc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.book-card .bc-t{color:#fff;font-weight:600;font-size:15.5px;line-height:1.25}
+.book-card .bc-d{color:var(--text-dim);font-size:12.5px;font-family:'JetBrains Mono',monospace;flex:none}
+.book-card .bc-c{color:var(--violet-3);font-size:12.5px;margin-bottom:6px;font-weight:500}
+.book-card .bc-loc{color:var(--text-dim);font-size:13px}
+.book-card .bc-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.client-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;transition:all .15s;cursor:pointer}
+.client-card:hover{border-color:var(--border-hi)}
+.client-card .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--plum));display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;flex:none}
+.client-card .cc-body{flex:1;min-width:0}
+.client-card .cc-name{color:#fff;font-weight:600;font-size:14.5px}
+.client-card .cc-meta{color:var(--text-dim);font-size:12.5px;margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+.client-card .cc-rev{text-align:right;flex:none}
+.client-card .cc-rev .amt{color:#fff;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px}
+.client-card .cc-rev .st{font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-top:3px;font-weight:600}
+.st-paid{color:var(--mint)}.st-unpaid{color:var(--amber)}.st-partial{color:var(--sky)}
+.modal-bg{position:fixed;inset:0;background:rgba(10,4,19,.85);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;backdrop-filter:blur(10px)}
+.modal-bg.open{display:flex;animation:fade .2s}
+.modal{background:var(--card);border:1px solid var(--border-hi);border-radius:20px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal h3{margin:0 0 4px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:28px;font-weight:400;color:#fff}
+.modal .m-sub{color:var(--text-dim);font-size:13.5px;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
+.swatch-row{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:34px;height:34px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+.swatch:hover{transform:scale(1.1)}
+.swatch.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(124,58,237,.4)}
+.soon{display:inline-block;background:rgba(255,107,122,.1);color:var(--pink);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:6px;margin-left:8px}
+.mt{margin-top:20px}.mt-s{margin-top:12px}.mt-l{margin-top:32px}
+.mb{margin-bottom:20px}
+.small{font-size:12.5px;color:var(--text-dim)}
 </style>
 </head>
 <body>
-
 <script>
-(function(){
-  var KEY='abbey_unlocked_v1', CODE='abbey333';
-  try{ if(localStorage.getItem(KEY)==='true') return; }catch(e){}
-  var params=new URLSearchParams(location.search);
-  if(params.get('logout')==='1'){ try{localStorage.removeItem(KEY);}catch(e){}}
-  document.addEventListener('DOMContentLoaded',function(){
-    var el=document.createElement('div');
-    el.id='abbey-gate';
-    el.innerHTML='<div class="g-card"><div class="g-brand">Candid Captures</div><h1 class="g-title">welcome, Abbey.</h1><p class="g-sub">Sign in to your command centre</p><input id="apw" type="password" placeholder="Passphrase" autocomplete="off" autofocus><button id="abtn">Unlock</button><div class="g-err" id="aerr"></div></div>';
-    document.body.appendChild(el);
-    var i=document.getElementById('apw'),b=document.getElementById('abtn'),e=document.getElementById('aerr');
-    function go(){if(i.value===CODE){try{localStorage.setItem(KEY,'true');}catch(_){}el.remove();}else{e.textContent='Nope — try again';el.classList.add('shake');i.value='';i.focus();setTimeout(function(){el.classList.remove('shake');},400);}}
-    b.addEventListener('click',go);
-    i.addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.preventDefault();go();}});
-  });
-})();
+(function(){var KEY='abbey_unlocked_v1',CODE='abbey333';try{if(localStorage.getItem(KEY)==='true')return;}catch(e){}var params=new URLSearchParams(location.search);if(params.get('logout')==='1'){try{localStorage.removeItem(KEY);}catch(e){}}document.addEventListener('DOMContentLoaded',function(){var el=document.createElement('div');el.id='abbey-gate';el.innerHTML='<div class="g-card"><div class="g-brand">Candid Captures</div><h1 class="g-title">welcome, Abbey.</h1><p class="g-sub">Sign in to your command centre</p><input id="apw" type="password" placeholder="Passphrase" autocomplete="off" autofocus><button id="abtn">Unlock</button><div class="g-err" id="aerr"></div></div>';document.body.appendChild(el);var i=document.getElementById('apw'),b=document.getElementById('abtn'),e=document.getElementById('aerr');function go(){if(i.value===CODE){try{localStorage.setItem(KEY,'true');}catch(_){}el.remove();}else{e.textContent='Nope — try again';el.classList.add('shake');i.value='';i.focus();setTimeout(function(){el.classList.remove('shake');},400);}}b.addEventListener('click',go);i.addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.preventDefault();go();}});});})();
 </script>
+
+<button class="mburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand">
-      <div class="orb"></div>
-      <div class="b-txt"><div class="b-name">Abbey</div><div class="b-sub">Command Centre</div></div>
-    </div>
-
+    <div class="brand"><div class="orb"></div><div><div class="b-name">Abbey</div><div class="b-sub">Command Centre</div></div></div>
     <div class="nav-lbl">Overview</div>
     <div class="nav-item active" data-sec="dashboard"><span class="ico">◆</span> Dashboard</div>
-
     <div class="nav-lbl">Studio</div>
     <div class="nav-item" data-sec="bookings"><span class="ico">◈</span> Bookings</div>
-    <div class="nav-item" data-sec="crm"><span class="ico">◇</span> Clients &amp; Leads</div>
+    <div class="nav-item" data-sec="clients"><span class="ico">◇</span> Clients &amp; Leads</div>
     <div class="nav-item" data-sec="todo"><span class="ico">▸</span> To-Do</div>
     <div class="nav-item" data-sec="finance"><span class="ico">$</span> Finance</div>
     <div class="nav-item" data-sec="compliance"><span class="ico">◉</span> Compliance</div>
-
     <div class="nav-lbl">Life</div>
     <div class="nav-item" data-sec="cai"><span class="ico">♡</span> Cai</div>
-
-    <div class="nav-dreams">
-      <div class="nav-lbl">The reason</div>
-      <div class="nav-item" data-sec="dreams"><span class="ico">✦</span> Dreams</div>
-    </div>
+    <div class="nav-item" data-sec="settings"><span class="ico">⚙</span> Settings</div>
+    <div class="nav-dreams"><div class="nav-lbl">The reason</div><div class="nav-item" data-sec="dreams"><span class="ico">✦</span> Dreams</div></div>
   </aside>
 
   <main class="main">
     <div class="hdr">
-      <div>
-        <h1 class="greet" id="greet">welcome back, Abbey.</h1>
-        <div class="meta">Your world. Your rhythm. Powered by Earthed · Cyborg V1.</div>
-      </div>
-      <div class="today">
-        <div class="date" id="today-date">—</div>
-        <div>You capture the moments. This holds the rest.</div>
-      </div>
+      <div><h1 class="greet" id="greet">welcome back, Abbey.</h1><div class="meta">Your world. Your rhythm.</div></div>
+      <div class="today"><div class="date" id="today-date">—</div><div>You capture the moments. This holds the rest.</div></div>
     </div>
 
-    <!-- DASHBOARD -->
     <div class="section active" id="sec-dashboard">
       <div class="grid g4">
-        <div class="card hi"><h3>Bookings this week</h3><div class="big">3</div><div class="sub">Next: Sat 30 Aug · 10am</div></div>
-        <div class="card hi"><h3>Open leads</h3><div class="big">7</div><div class="sub"><span class="accent">2 hot</span> · 5 warm</div></div>
-        <div class="card hi"><h3>Tasks pending</h3><div class="big">5</div><div class="sub">2 need doing today</div></div>
-        <div class="card hi"><h3>August revenue</h3><div class="big">$4,280</div><div class="sub">86% of monthly goal</div></div>
-      </div>
-      <div style="height:24px"></div>
-      <div class="grid g2">
-        <div class="card">
-          <h3>Today at a glance</h3>
-          <div class="list" style="margin-top:14px">
-            <div class="list-item"><span class="dot"></span><div class="txt"><div class="t">Family shoot · Henderson</div><div class="s">10:00am · Botanic Park</div></div><div class="r">2h</div></div>
-            <div class="list-item"><span class="dot mint"></span><div class="txt"><div class="t">Edit + deliver Rodriguez gallery</div><div class="s">Deadline: today 5pm</div></div><div class="r">Do</div></div>
-            <div class="list-item"><span class="dot peach"></span><div class="txt"><div class="t">Cai · school pickup</div><div class="s">3:15pm · sport tomorrow</div></div><div class="r">3:15</div></div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Dreams · in motion</h3>
-          <div style="margin-top:16px">
-            <div style="display:flex;justify-content:space-between;padding:8px 0"><div><div style="color:#fff;font-weight:500">Byron Bay long weekend</div><div style="color:var(--text-dim);font-size:12.5px;margin-top:3px">Booking Oct 26</div></div><div style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:12px">40%</div></div>
-            <div class="bar"><div class="fill" style="width:40%"></div></div>
-            <div style="height:14px"></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0"><div><div style="color:#fff;font-weight:500">Sony A7 IV camera body</div><div style="color:var(--text-dim);font-size:12.5px;margin-top:3px">$3,499</div></div><div style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:12px">72%</div></div>
-            <div class="bar"><div class="fill" style="width:72%"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOOKINGS -->
-    <div class="section" id="sec-bookings">
-      <div class="sec-h"><div><h2>bookings.</h2><div class="desc">Upcoming shoots · confirmed + enquiry</div></div><button class="btn" onclick="alert('Booking form coming soon.')">+ New Booking</button></div>
-      <div class="list" id="bookings-list"></div>
-    </div>
-
-    <!-- CRM -->
-    <div class="section" id="sec-crm">
-      <div class="sec-h"><div><h2>clients &amp; leads.</h2><div class="desc">Warm hearts. Repeat shoots. Long relationships.</div></div><button class="btn" onclick="alert('Client form coming soon.')">+ New Client</button></div>
-      <div class="list" id="crm-list"></div>
-    </div>
-
-    <!-- TO-DO -->
-    <div class="section" id="sec-todo">
-      <div class="sec-h"><div><h2>today&#39;s list.</h2><div class="desc">Small wins stack.</div></div></div>
-      <div class="add-row"><input class="field" id="new-todo" placeholder="Add a task..."><button class="btn" onclick="addTodo()">Add</button></div>
-      <div style="height:16px"></div>
-      <div class="list" id="todo-list"></div>
-    </div>
-
-    <!-- CAI -->
-    <div class="section" id="sec-cai">
-      <div class="cai-hero">
-        <h2 class="h">for Cai.</h2>
-        <p class="p">Everything he needs, at your fingertips. Emergency numbers, reminders, school + sport, and the little things that matter most.</p>
-      </div>
-      <div class="sec-h"><div><h2 style="font-size:26px">emergency numbers.</h2></div></div>
-      <div class="emerg-grid">
-        <a class="emerg" href="tel:000"><div class="role">Emergency</div><div class="name">Ambulance · Fire · Police</div><div class="num">000</div></a>
-        <a class="emerg" href="tel:"><div class="role">Cai&#39;s Dad</div><div class="name">Add contact</div><div class="num">Add number</div></a>
-        <a class="emerg" href="tel:131126"><div class="role">Poisons</div><div class="name">Poisons Info Centre</div><div class="num">13 11 26</div></a>
-        <a class="emerg" href="tel:1800022222"><div class="role">Nurse on call</div><div class="name">Health Direct</div><div class="num">1800 022 222</div></a>
-        <a class="emerg" href="tel:"><div class="role">School</div><div class="name">Cai&#39;s school</div><div class="num">Add number</div></a>
-        <a class="emerg" href="tel:"><div class="role">Doctor / GP</div><div class="name">Family GP</div><div class="num">Add number</div></a>
-      </div>
-      <div style="height:32px"></div>
-      <div class="sec-h"><div><h2 style="font-size:26px">reminders.</h2></div></div>
-      <div class="list">
-        <div class="list-item"><span class="dot pink"></span><div class="txt"><div class="t">School pickup</div><div class="s">Weekdays 3:15pm</div></div><div class="r">Daily</div></div>
-        <div class="list-item"><span class="dot mint"></span><div class="txt"><div class="t">Sport — Wednesdays</div><div class="s">Gear: uniform, water, snack</div></div><div class="r">Wed</div></div>
-        <div class="list-item"><span class="dot peach"></span><div class="txt"><div class="t">Dentist check-up</div><div class="s">Book term break</div></div><div class="r">Soon</div></div>
-        <div class="list-item"><span class="dot"></span><div class="txt"><div class="t">Term 4 starts</div><div class="s">Mon 13 Oct 2026</div></div><div class="r">Term</div></div>
-      </div>
-    </div>
-
-    <!-- FINANCE -->
-    <div class="section" id="sec-finance">
-      <div class="sec-h"><div><h2>finance.</h2><div class="desc">Where the money&#39;s flowing.</div></div></div>
-      <div class="grid g3">
-        <div class="card hi"><h3>Revenue · Aug</h3><div class="big">$4,280</div><div class="sub">7 bookings closed</div></div>
-        <div class="card hi"><h3>Expenses · Aug</h3><div class="big">$1,140</div><div class="sub">Gear, fuel, subs</div></div>
-        <div class="card hi"><h3>Take-home</h3><div class="big" style="color:#7dd3a4">$3,140</div><div class="sub">Before tax set-aside</div></div>
+        <div class="card hi"><h3>Bookings this week</h3><div class="big" id="s-book">0</div><div class="sub" id="s-book-next">—</div></div>
+        <div class="card hi"><h3>Active clients</h3><div class="big" id="s-clients">0</div><div class="sub" id="s-clients-sub">—</div></div>
+        <div class="card hi"><h3>Tasks pending</h3><div class="big" id="s-tasks">0</div><div class="sub" id="s-tasks-sub">—</div></div>
+        <div class="card hi"><h3>Month revenue</h3><div class="big" id="s-rev">$0</div><div class="sub" id="s-rev-sub">—</div></div>
       </div>
       <div style="height:20px"></div>
-      <div class="seg">
-        <h4>Monthly target</h4>
-        <div style="display:flex;justify-content:space-between;padding:8px 0"><div><div style="color:#fff;font-weight:500">$5,000 goal</div><div style="color:var(--text-dim);font-size:12.5px;margin-top:3px">$4,280 booked · $720 to go</div></div><div style="color:var(--text-dim);font-family:'JetBrains Mono',monospace">86%</div></div>
-        <div class="bar"><div class="fill" style="width:86%"></div></div>
-      </div>
-      <div class="seg">
-        <h4>Recent income</h4>
-        <div class="row"><div class="k">Rodriguez engagement — deposit</div><div class="v">+$300</div></div>
-        <div class="row"><div class="k">Henderson family shoot — full</div><div class="v">+$650</div></div>
-        <div class="row"><div class="k">Owen newborn — deposit</div><div class="v">+$400</div></div>
-        <div class="row"><div class="k">Miller wedding — deposit</div><div class="v">+$1,500</div></div>
+      <div class="grid g2">
+        <div class="card"><h3>Coming up</h3><div class="list mt-s" id="d-upcoming"></div></div>
+        <div class="card"><h3>Dreams in motion</h3><div class="mt-s" id="d-dreams"></div></div>
       </div>
     </div>
 
-    <!-- COMPLIANCE -->
+    <div class="section" id="sec-bookings">
+      <div class="sec-h"><div><h2>bookings.</h2><div class="desc">Colour-coded and linked to the client. Tap any booking to message or call.</div></div><button class="btn" onclick="openBookingModal()">+ New Booking</button></div>
+      <div class="cal-h"><div class="m" id="cal-month">—</div><div class="nav"><button class="btn ghost" onclick="calShift(-1)">← Prev</button><button class="btn ghost" onclick="calToday()">Today</button><button class="btn ghost" onclick="calShift(1)">Next →</button></div></div>
+      <div class="cal" id="cal"></div>
+      <h3 style="margin:32px 0 4px;font-size:14px;color:var(--text-dim);font-weight:600;letter-spacing:.06em">Upcoming</h3>
+      <div class="book-list" id="bookings-list"></div>
+    </div>
+
+    <div class="section" id="sec-clients">
+      <div class="sec-h"><div><h2>clients &amp; leads.</h2><div class="desc">Newest at top. Track revenue, payment status, notes.</div></div><button class="btn" onclick="openClientModal()">+ New Client</button></div>
+      <div class="list" id="clients-list"></div>
+    </div>
+
+    <div class="section" id="sec-todo">
+      <div class="sec-h"><div><h2>today&#39;s list.</h2><div class="desc">Add tasks. Tap to complete. Send a reminder to yourself or a client.</div></div></div>
+      <div class="add-row"><input class="field" id="new-todo" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTodo()"><button class="btn" onclick="addTodo()">Add</button></div>
+      <div class="list mt" id="todo-list"></div>
+      <div class="card mt-l">
+        <h3>Send a reminder</h3>
+        <div class="small mt-s">Type a message and pick who to text. Opens Messages on your phone with everything pre-filled.</div>
+        <div class="mt-s"><input class="field" id="rem-to" placeholder="Phone number (e.g. 0400 123 456)"></div>
+        <div class="mt-s"><textarea class="field" id="rem-msg" placeholder="Reminder message..."></textarea></div>
+        <div class="mt-s" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="sendReminder()">Text this</button><button class="btn ghost" onclick="callFromReminder()">Call instead</button></div>
+        <div class="small mt-s"><span class="soon">Coming soon *</span> Auto-schedule reminders to send at a set time.</div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-finance">
+      <div class="sec-h"><div><h2>finance.</h2><div class="desc">Editable sheet. Add rows for income or expenses. Everything saves automatically.</div></div><button class="btn" onclick="addFinanceRow()">+ Row</button></div>
+      <div class="grid g3">
+        <div class="card hi"><h3>Income this month</h3><div class="big" id="fin-in" style="color:var(--mint)">$0</div><div class="sub">Booked + paid</div></div>
+        <div class="card hi"><h3>Expenses this month</h3><div class="big" id="fin-out" style="color:var(--pink)">$0</div><div class="sub">Business only</div></div>
+        <div class="card hi"><h3>Take-home</h3><div class="big" id="fin-net">$0</div><div class="sub">Before tax set-aside</div></div>
+      </div>
+      <div class="mt sheet-wrap"><table class="sheet" id="fin-sheet"><thead><tr><th style="width:120px">Date</th><th>Description</th><th style="width:120px">Category</th><th style="width:100px">Type</th><th style="width:120px">Amount</th><th style="width:60px"></th></tr></thead><tbody id="fin-body"></tbody></table></div>
+      <div class="small mt-s">Click any cell to edit. Enter Amount as a number (no $).</div>
+    </div>
+
     <div class="section" id="sec-compliance">
-      <div class="sec-h"><div><h2>compliance &amp; growth.</h2><div class="desc">ASIC, forecast, savings goals — the boring stuff, made beautiful.</div></div></div>
+      <div class="sec-h"><div><h2>compliance &amp; growth.</h2><div class="desc">The boring stuff, made calm. Anything with <span class="req">*</span> needs your input when you&#39;re ready.</div></div></div>
       <div class="seg">
-        <h4>ASIC · Business admin</h4>
-        <div class="row"><div class="k">Sole trader ABN</div><div class="v">Pending</div></div>
-        <div class="row"><div class="k">GST registration</div><div class="v">Under $75k</div></div>
-        <div class="row"><div class="k">Public liability insurance</div><div class="v">Setup needed</div></div>
-        <div class="row"><div class="k">Next BAS due</div><div class="v">28 Oct 2026</div></div>
+        <h4>Business admin</h4>
+        <div class="row"><div class="k">Sole trader ABN <span class="req">*</span></div><div class="v editable" contenteditable data-key="abn">Pending</div></div>
+        <div class="row"><div class="k">Business name</div><div class="v editable" contenteditable data-key="bname">Candid Captures</div></div>
+        <div class="row"><div class="k">GST registration</div><div class="v editable" contenteditable data-key="gst">Under $75k threshold</div></div>
+        <div class="row"><div class="k">Public liability insurance <span class="req">*</span></div><div class="v editable" contenteditable data-key="pl">Setup needed</div></div>
+        <div class="row"><div class="k">Bank account (business)</div><div class="v editable" contenteditable data-key="bank">—</div></div>
+        <div class="row"><div class="k">Accounting software</div><div class="v editable" contenteditable data-key="acct">Rounded / Xero / spreadsheet?</div></div>
+        <div class="row"><div class="k">Next BAS due</div><div class="v editable" contenteditable data-key="bas">28 Oct 2026</div></div>
       </div>
       <div class="seg">
         <h4>Financial forecast — FY26/27</h4>
-        <div class="row"><div class="k">Baseline monthly</div><div class="v">$4,200</div></div>
-        <div class="row"><div class="k">Growth target Q1 27</div><div class="v">$6,500</div></div>
-        <div class="row"><div class="k">FY26/27 revenue target</div><div class="v">$65,000</div></div>
-        <div class="bar" style="margin-top:12px"><div class="fill" style="width:23%"></div></div>
-        <div style="font-size:12px;color:var(--text-dim);margin-top:8px">23% of the way there · Aug 2026</div>
+        <div class="row"><div class="k">Baseline monthly</div><div class="v editable" contenteditable data-key="fbase">$4,200</div></div>
+        <div class="row"><div class="k">Growth target Q1 27</div><div class="v editable" contenteditable data-key="fgrow">$6,500</div></div>
+        <div class="row"><div class="k">FY26/27 revenue target</div><div class="v editable" contenteditable data-key="ftarget">$65,000</div></div>
+        <div class="bar mt-s"><div class="fill" style="width:23%"></div></div>
+        <div class="small mt-s">23% of the way there · Aug 2026</div>
       </div>
       <div class="seg">
         <h4>Savings goals</h4>
-        <div style="display:flex;justify-content:space-between;padding:8px 0"><div class="k">Emergency fund ($5k)</div><div class="v">$1,850 · 37%</div></div>
-        <div class="bar"><div class="fill" style="width:37%"></div></div>
-        <div style="height:14px"></div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0"><div class="k">Camera upgrade ($3,499)</div><div class="v">$2,520 · 72%</div></div>
-        <div class="bar"><div class="fill" style="width:72%"></div></div>
-        <div style="height:14px"></div>
-        <div style="display:flex;justify-content:space-between;padding:8px 0"><div class="k">Byron Bay weekend ($1,200)</div><div class="v">$480 · 40%</div></div>
-        <div class="bar"><div class="fill" style="width:40%"></div></div>
+        <div id="savings-list"></div>
+        <button class="btn ghost sm mt-s" onclick="addSavingGoal()">+ Add goal</button>
+      </div>
+      <div class="small mt"><span class="req">*</span> means still to sort. No rush — one at a time.</div>
+    </div>
+
+    <div class="section" id="sec-cai">
+      <div class="cai-hero"><h2 class="h">for Cai.</h2><p class="p">Everything he needs, at your fingertips. Emergency numbers, growth log, photos, reminders.</p></div>
+      <div class="sec-h"><div><h2 style="font-size:24px">emergency numbers.</h2></div><button class="btn sm" onclick="addEmergency()">+ Add</button></div>
+      <div class="emerg-grid" id="emerg-grid"></div>
+      <div class="sec-h mt-l"><div><h2 style="font-size:24px">reminders.</h2></div><button class="btn sm" onclick="addCaiReminder()">+ Add</button></div>
+      <div class="list" id="cai-rem-list"></div>
+      <div class="sec-h mt-l"><div><h2 style="font-size:24px">growth log.</h2><div class="desc">Height, weight, milestones. Editable, dated.</div></div><button class="btn sm" onclick="addGrowthEntry()">+ Entry</button></div>
+      <div class="sheet-wrap"><table class="sheet" id="growth-sheet"><thead><tr><th style="width:120px">Date</th><th style="width:100px">Height</th><th style="width:100px">Weight</th><th>Notes</th><th style="width:60px"></th></tr></thead><tbody id="growth-body"></tbody></table></div>
+      <div class="sec-h mt-l"><div><h2 style="font-size:24px">photos.</h2><div class="desc">Small moments. Add anytime.</div></div></div>
+      <label class="upload" for="cai-photo-input"><div class="u-t">Tap to add a photo of Cai</div><div class="u-s">Stored locally · JPG/PNG</div></label>
+      <input id="cai-photo-input" type="file" accept="image/*" onchange="uploadCaiPhoto(event)">
+      <div class="cai-photo-grid mt" id="cai-photos"></div>
+    </div>
+
+    <div class="section" id="sec-settings">
+      <div class="sec-h"><div><h2>settings.</h2><div class="desc">Backup, restore, and connect your world.</div></div></div>
+      <div class="seg">
+        <h4>Backup</h4>
+        <div class="small">All your data lives in this browser. Export a backup weekly (or before switching devices) so nothing gets lost.</div>
+        <div class="mt-s" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="exportBackup()">↓ Export backup (JSON)</button><label class="btn ghost" for="restore-input">↑ Restore from backup</label><input id="restore-input" type="file" accept=".json,application/json" onchange="importBackup(event)"></div>
+      </div>
+      <div class="seg">
+        <h4>Connected services <span class="soon">Coming soon *</span></h4>
+        <div class="row"><div class="k">Dropbox sync (photos + files)</div><div class="v" style="color:var(--text-mute)">Awaiting setup</div></div>
+        <div class="row"><div class="k">Supabase cloud backup</div><div class="v" style="color:var(--text-mute)">Awaiting setup</div></div>
+        <div class="row"><div class="k">Email → auto-log leads</div><div class="v" style="color:var(--text-mute)">Awaiting domain email</div></div>
+        <div class="row"><div class="k">Auto-scheduled SMS reminders</div><div class="v" style="color:var(--text-mute)">Awaiting setup</div></div>
+      </div>
+      <div class="seg">
+        <h4>Danger zone</h4>
+        <div class="small">Reset everything to defaults. Only if you know why.</div>
+        <div class="mt-s"><button class="btn danger" onclick="wipeAll()">Reset all data</button></div>
       </div>
     </div>
 
-    <!-- DREAMS -->
     <div class="section" id="sec-dreams">
-      <div class="sec-h"><div><h2>the dream board.</h2><div class="desc">The reason we do the work. Add anything you want, anytime.</div></div><button class="btn" onclick="alert('Dream upload coming soon.')">+ Add dream</button></div>
-      <div class="dream-grid">
-        <div class="dream"><div class="img" style="height:260px;background:linear-gradient(135deg,#ff9aa2,#f5a04a)"></div><div class="cap"><div class="cat">Travel</div><div class="t">Byron Bay long weekend · Oct 26</div></div></div>
-        <div class="dream"><div class="img" style="height:180px;background:linear-gradient(135deg,#93c5fd,#7c3aed)"></div><div class="cap"><div class="cat">Gear</div><div class="t">Sony A7 IV · new camera body</div></div></div>
-        <div class="dream"><div class="img" style="height:320px;background:linear-gradient(135deg,#7dd3a4,#93c5fd)"></div><div class="cap"><div class="cat">Home</div><div class="t">A little studio in the backyard</div></div></div>
-        <div class="dream"><div class="img" style="height:220px;background:linear-gradient(135deg,#c4a5ff,#ff9aa2)"></div><div class="cap"><div class="cat">Family</div><div class="t">Cai — school + sport gear sorted for the year</div></div></div>
-        <div class="dream"><div class="img" style="height:280px;background:linear-gradient(135deg,#f5a04a,#7c3aed)"></div><div class="cap"><div class="cat">Business</div><div class="t">10 bookings a month by summer 27</div></div></div>
-        <div class="dream"><div class="img" style="height:200px;background:linear-gradient(135deg,#7c3aed,#150d1d)"></div><div class="cap"><div class="cat">Health</div><div class="t">Pilates · 3× a week rhythm</div></div></div>
-        <div class="dream"><div class="img" style="height:240px;background:linear-gradient(135deg,#ff9aa2,#c4a5ff)"></div><div class="cap"><div class="cat">Travel</div><div class="t">Japan · cherry blossom season</div></div></div>
-        <div class="dream"><div class="img" style="height:180px;background:linear-gradient(135deg,#93c5fd,#7dd3a4)"></div><div class="cap"><div class="cat">Personal</div><div class="t">Learn film photography</div></div></div>
-        <div class="dream"><div class="img" style="height:220px;background:linear-gradient(135deg,#f5a04a,#ff9aa2)"></div><div class="cap"><div class="cat">Home</div><div class="t">Slow renovation · one room a year</div></div></div>
-      </div>
+      <div class="sec-h"><div><h2>the dream board.</h2><div class="desc">The reason. Add a hero photo, write what it means, set a target if you want.</div></div><button class="btn" onclick="openDreamModal()">+ Add dream</button></div>
+      <div class="dream-grid" id="dreams-grid"></div>
     </div>
 
   </main>
 </div>
 
+<div class="modal-bg" id="modal-bg"><div class="modal" id="modal-inner"></div></div>
+
 <script>
-document.querySelectorAll('.nav-item').forEach(function(n){
-  n.addEventListener('click', function(){
-    document.querySelectorAll('.nav-item').forEach(function(x){x.classList.remove('active');});
-    n.classList.add('active');
-    var t = n.getAttribute('data-sec');
-    document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
-    document.getElementById('sec-'+t).classList.add('active');
-    window.scrollTo({top:0,behavior:'smooth'});
-  });
-});
-
-(function(){
-  var d = new Date();
-  document.getElementById('today-date').textContent = d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  var hr = d.getHours();
-  document.getElementById('greet').textContent = hr<12 ? 'good morning, Abbey.' : hr<18 ? 'welcome back, Abbey.' : 'good evening, Abbey.';
-})();
-
-var TODO_KEY = 'abbey_todo_v1';
-function loadTodos(){ try{return JSON.parse(localStorage.getItem(TODO_KEY)||'[]');}catch(e){return [];} }
-function saveTodos(a){ try{localStorage.setItem(TODO_KEY,JSON.stringify(a));}catch(e){} }
-function renderTodos(){
-  var arr = loadTodos();
-  if(arr.length===0){
-    arr = [
-      {t:'Edit + deliver Rodriguez gallery', done:false},
-      {t:'Post Sunday shoot teaser to Instagram', done:false},
-      {t:'Reply to Emma re Saturday booking', done:true},
-      {t:'Restock SD cards + batteries', done:false},
-      {t:"Book Cai's dentist", done:false}
-    ];
-    saveTodos(arr);
-  }
-  var list = document.getElementById('todo-list');
-  list.innerHTML = '';
-  arr.forEach(function(item,i){
-    var el = document.createElement('div');
-    el.className = 'list-item todo-item'+(item.done?' done':'');
-    el.innerHTML = '<div class="todo-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round"></path></svg></div><div class="txt"><div class="t"></div></div>';
-    el.querySelector('.t').textContent = item.t;
-    el.addEventListener('click', function(){
-      var a = loadTodos(); a[i].done = !a[i].done; saveTodos(a); renderTodos();
-    });
-    list.appendChild(el);
-  });
+var S={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){alert('Storage full — export a backup and delete some photos.');}}};
+var K={todo:'abbey_todo_v2',bookings:'abbey_bookings_v1',clients:'abbey_clients_v1',finance:'abbey_finance_v1',dreams:'abbey_dreams_v2',cai_photos:'abbey_cai_photos_v1',cai_rem:'abbey_cai_rem_v1',growth:'abbey_growth_v1',emerg:'abbey_emerg_v1',compliance:'abbey_compliance_v1',savings:'abbey_savings_v1'};
+function uid(){return 'x'+Math.random().toString(36).slice(2,10);}
+function today(){return new Date().toISOString().slice(0,10);}
+function futureDate(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function daysAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);}
+function fmt$(n){return '$'+(Number(n)||0).toLocaleString('en-AU',{maximumFractionDigits:0});}
+function esc(s){return String(s==null?'':s).replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function seed(){
+  if(!S.get(K.dreams))S.set(K.dreams,[{id:uid(),title:'New camera set-up',cat:'Gear',price:'$3,499',target:'By end of FY27',notes:'Sony A7 IV body + 50mm prime + spare batteries.',img:''}]);
+  if(!S.get(K.emerg))S.set(K.emerg,[{role:'Emergency',name:'Ambulance · Fire · Police',num:'000'},{role:"Cai's Dad",name:'Add contact',num:''},{role:'Poisons',name:'Poisons Info Centre',num:'13 11 26'},{role:'Nurse on call',name:'Health Direct',num:'1800 022 222'},{role:'School',name:"Cai's school",num:''},{role:'Doctor / GP',name:'Family GP',num:''}]);
+  if(!S.get(K.cai_rem))S.set(K.cai_rem,[{t:'School pickup',s:'Weekdays 3:15pm',r:'Daily'},{t:'Sport — Wednesdays',s:'Gear: uniform, water, snack',r:'Wed'}]);
+  if(!S.get(K.growth))S.set(K.growth,[{date:today(),height:'',weight:'',notes:'First entry — fill in when weighed next.'}]);
+  if(!S.get(K.todo))S.set(K.todo,[{t:'Edit + deliver Rodriguez gallery',done:false},{t:'Post Sunday shoot teaser to Instagram',done:false},{t:"Book Cai's dentist",done:false}]);
+  if(!S.get(K.bookings))S.set(K.bookings,[{id:uid(),clientId:null,title:'Henderson family shoot',clientName:'Henderson family',date:futureDate(4),startTime:'10:00',endTime:'12:00',location:'Botanic Park',type:'Family',color:'#7c3aed',notes:'Bring wide lens + reflector.',phone:''},{id:uid(),clientId:null,title:'Rodriguez engagement',clientName:'Rodriguez',date:futureDate(12),startTime:'16:00',endTime:'18:00',location:'Semaphore beach',type:'Engagement',color:'#c96a52',notes:'Golden hour — arrive 3:30.',phone:''}]);
+  if(!S.get(K.clients))S.set(K.clients,[{id:uid(),name:'Henderson family',email:'',phone:'',addedDate:daysAgo(30),revenue:1850,paidStatus:'paid',type:'Repeat',notes:'3 shoots so far. Prefer outdoor. Two kids under 5.'},{id:uid(),name:'Rodriguez',email:'',phone:'',addedDate:daysAgo(14),revenue:300,paidStatus:'partial',type:'Hot',notes:'Engagement booked. Wedding upsell in play.'}]);
+  if(!S.get(K.finance))S.set(K.finance,[{date:today(),desc:'Henderson family shoot',cat:'Shoots',type:'income',amount:650},{date:today(),desc:'Rodriguez engagement — deposit',cat:'Shoots',type:'income',amount:300},{date:today(),desc:'Adobe Creative Cloud',cat:'Software',type:'expense',amount:88},{date:today(),desc:'Dropbox Pro',cat:'Software',type:'expense',amount:18},{date:today(),desc:'Petrol',cat:'Vehicle',type:'expense',amount:120},{date:today(),desc:'Public liability insurance',cat:'Insurance',type:'expense',amount:90},{date:today(),desc:'Phone bill',cat:'Comms',type:'expense',amount:65},{date:today(),desc:'Accountant',cat:'Admin',type:'expense',amount:120}]);
+  if(!S.get(K.savings))S.set(K.savings,[{name:'Emergency fund',target:5000,current:1850},{name:'Camera upgrade',target:3499,current:2520},{name:'Byron Bay weekend',target:1200,current:480}]);
+  if(!S.get(K.compliance))S.set(K.compliance,{});
+  if(!S.get(K.cai_photos))S.set(K.cai_photos,[]);
 }
-function addTodo(){
-  var i = document.getElementById('new-todo');
-  var v = i.value.trim(); if(!v) return;
-  var a = loadTodos(); a.unshift({t:v, done:false}); saveTodos(a);
-  i.value=''; renderTodos();
-}
-renderTodos();
-
-(function(){
-  var b = [
-    {t:'Henderson family shoot', s:'Sat 30 Aug · 10am · Botanic Park', r:'Confirmed'},
-    {t:'Owen — newborn session', s:'Wed 03 Sep · 11am · in-home', r:'Confirmed'},
-    {t:'Rodriguez engagement', s:'Sat 06 Sep · 4pm · Semaphore beach', r:'Deposit paid'},
-    {t:'Miller wedding — full day', s:'Sat 04 Oct · 10am–8pm', r:'Contract sent'},
-    {t:'Emma enquiry — maternity', s:'Reply needed by tomorrow', r:'Enquiry'}
-  ];
-  document.getElementById('bookings-list').innerHTML = b.map(function(x){
-    return '<div class="list-item"><span class="dot"></span><div class="txt"><div class="t">'+x.t+'</div><div class="s">'+x.s+'</div></div><div class="r">'+x.r+'</div></div>';
-  }).join('');
-})();
-
-(function(){
-  var c = [
-    {t:'Henderson family', s:'3 shoots · last Jul 26', r:'Repeat'},
-    {t:'Rodriguez', s:'Engagement booked · wedding upsell pending', r:'Hot'},
-    {t:'Owen family', s:'Newborn session Sep 3', r:'Active'},
-    {t:'Miller couple', s:'Wedding Oct 4 · deposit received', r:'Active'},
-    {t:'Emma Chen', s:'Maternity enquiry · reply needed', r:'Warm'},
-    {t:'Jules Ferrari', s:'Corporate headshots · quoted', r:'Warm'},
-    {t:'Sarah + Tom', s:'Enquired via IG · no reply yet', r:'Cold'}
-  ];
-  document.getElementById('crm-list').innerHTML = c.map(function(x){
-    return '<div class="list-item"><span class="dot"></span><div class="txt"><div class="t">'+x.t+'</div><div class="s">'+x.s+'</div></div><div class="r">'+x.r+'</div></div>';
-  }).join('');
-})();
+document.querySelectorAll('.nav-item').forEach(function(n){n.addEventListener('click',function(){document.querySelectorAll('.nav-item').forEach(function(x){x.classList.remove('active');});n.classList.add('active');var t=n.getAttribute('data-sec');document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});document.getElementById('sec-'+t).classList.add('active');document.querySelector('.sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});if(t==='bookings')renderCal();});});
+(function(){var d=new Date();document.getElementById('today-date').textContent=d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});var hr=d.getHours();document.getElementById('greet').textContent=hr<12?'good morning, Abbey.':hr<18?'welcome back, Abbey.':'good evening, Abbey.';})();
+function renderDashboard(){var b=S.get(K.bookings,[]),c=S.get(K.clients,[]),t=S.get(K.todo,[]),f=S.get(K.finance,[]);var now=new Date(),wk=new Date(now);wk.setDate(now.getDate()+7);var thisWeek=b.filter(function(x){var d=new Date(x.date);return d>=now&&d<=wk;});document.getElementById('s-book').textContent=thisWeek.length;var next=b.filter(function(x){return new Date(x.date)>=now;}).sort(function(a,b){return a.date.localeCompare(b.date);})[0];document.getElementById('s-book-next').textContent=next?'Next: '+next.title+' · '+next.date:'No upcoming';document.getElementById('s-clients').textContent=c.length;var hot=c.filter(function(x){return x.type==='Hot';}).length;document.getElementById('s-clients-sub').innerHTML=hot?'<span class="accent">'+hot+' hot</span> · '+(c.length-hot)+' other':(c.length+' active');var pending=t.filter(function(x){return !x.done;}).length;document.getElementById('s-tasks').textContent=pending;document.getElementById('s-tasks-sub').textContent=pending?'Tap To-Do to work through them':'All clear ✨';var mm=new Date().getMonth(),yy=new Date().getFullYear();var mth=f.filter(function(x){var d=new Date(x.date);return d.getMonth()===mm&&d.getFullYear()===yy&&x.type==='income';}).reduce(function(s,x){return s+Number(x.amount||0);},0);document.getElementById('s-rev').textContent=fmt$(mth);document.getElementById('s-rev-sub').textContent='Income · '+now.toLocaleDateString('en-AU',{month:'long'});var up=b.filter(function(x){return new Date(x.date)>=now;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,4);document.getElementById('d-upcoming').innerHTML=up.length?up.map(function(x){return '<div class="list-item"><span class="dot" style="background:'+esc(x.color||'#7c3aed')+'"></span><div class="txt"><div class="t">'+esc(x.title)+'</div><div class="s">'+esc(x.date)+' · '+esc(x.startTime||'')+' · '+esc(x.location||'')+'</div></div></div>';}).join(''):'<div class="small">No upcoming bookings — add one from Bookings.</div>';var savs=S.get(K.savings,[]).slice(0,2);document.getElementById('d-dreams').innerHTML=savs.map(function(s){var p=Math.min(100,Math.round(s.current/s.target*100));return '<div style="display:flex;justify-content:space-between;padding:6px 0"><div><div style="color:#fff;font-weight:500">'+esc(s.name)+'</div><div class="small">'+fmt$(s.current)+' / '+fmt$(s.target)+'</div></div><div class="small">'+p+'%</div></div><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div style="height:12px"></div>';}).join('')||'<div class="small">Add a saving goal in Compliance.</div>';}
+function renderTodo(){var arr=S.get(K.todo,[]);document.getElementById('todo-list').innerHTML=arr.map(function(item,i){return '<div class="list-item todo-item'+(item.done?' done':'')+'" onclick="toggleTodo('+i+')"><div class="todo-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></div><div class="txt"><div class="t">'+esc(item.t)+'</div></div><span class="x" onclick="event.stopPropagation();delTodo('+i+')">×</span></div>';}).join('')||'<div class="small">Nothing on the list. Add something above.</div>';}
+function toggleTodo(i){var a=S.get(K.todo,[]);a[i].done=!a[i].done;S.set(K.todo,a);renderTodo();renderDashboard();}
+function delTodo(i){var a=S.get(K.todo,[]);a.splice(i,1);S.set(K.todo,a);renderTodo();renderDashboard();}
+function addTodo(){var i=document.getElementById('new-todo'),v=i.value.trim();if(!v)return;var a=S.get(K.todo,[]);a.unshift({t:v,done:false});S.set(K.todo,a);i.value='';renderTodo();renderDashboard();}
+function sendReminder(){var to=document.getElementById('rem-to').value.trim().replace(/\s/g,'');var msg=document.getElementById('rem-msg').value.trim();if(!to||!msg){alert('Fill in both the number and the message.');return;}window.location.href='sms:'+to+'&body='+encodeURIComponent(msg);}
+function callFromReminder(){var to=document.getElementById('rem-to').value.trim().replace(/\s/g,'');if(!to){alert('Enter a phone number first.');return;}window.location.href='tel:'+to;}
+var COLORS=[{name:'Deep plum',v:'#513963'},{name:'Violet',v:'#7c3aed'},{name:'Lavender',v:'#c4a5ff'},{name:'Terracotta',v:'#c96a52'},{name:'Rose',v:'#d8a5a5'},{name:'Olive',v:'#a89967'},{name:'Sand',v:'#c9b78a'}];
+var calDate=new Date();
+function calShift(n){calDate.setMonth(calDate.getMonth()+n);renderCal();}
+function calToday(){calDate=new Date();renderCal();}
+function renderCal(){var yr=calDate.getFullYear(),mo=calDate.getMonth();document.getElementById('cal-month').textContent=calDate.toLocaleDateString('en-AU',{month:'long',year:'numeric'});var first=new Date(yr,mo,1),last=new Date(yr,mo+1,0);var startDay=first.getDay();var offset=(startDay+6)%7;var days=[];for(var i=0;i<offset;i++)days.push({n:'',other:true});for(var d=1;d<=last.getDate();d++)days.push({n:d,date:yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')});while(days.length%7!==0)days.push({n:'',other:true});var bs=S.get(K.bookings,[]),tstr=today();var html='';['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(function(d){html+='<div class="dh">'+d+'</div>';});days.forEach(function(d){if(d.other){html+='<div class="day other"></div>';return;}var todays=bs.filter(function(b){return b.date===d.date;});var isT=d.date===tstr;html+='<div class="day'+(isT?' today':'')+'" onclick="clickCalDay(\''+d.date+'\')"><div class="n">'+d.n+'</div>';todays.slice(0,2).forEach(function(b){html+='<div class="b" style="background:'+esc(b.color||'#7c3aed')+'">'+esc(b.title.slice(0,14))+'</div>';});if(todays.length>2)html+='<div class="small" style="font-size:9px">+'+(todays.length-2)+' more</div>';html+='</div>';});document.getElementById('cal').innerHTML=html;renderBookingsList();}
+function clickCalDay(date){var bs=S.get(K.bookings,[]).filter(function(b){return b.date===date;});if(bs.length===1)openBookingModal(bs[0].id);else openBookingModal(null,date);}
+function renderBookingsList(){var bs=S.get(K.bookings,[]).filter(function(b){return b.date>=today();}).sort(function(a,b){return a.date.localeCompare(b.date);});document.getElementById('bookings-list').innerHTML=bs.length?bs.map(function(b){return '<div class="book-card" style="border-left-color:'+esc(b.color||'#7c3aed')+'" onclick="openBookingModal(\''+b.id+'\')"><div class="bc-h"><div class="bc-t">'+esc(b.title)+'</div><div class="bc-d">'+esc(b.date)+'</div></div><div class="bc-c">'+esc(b.clientName||'—')+' · '+esc(b.type||'')+'</div><div class="bc-loc">'+esc(b.startTime||'')+(b.endTime?' – '+esc(b.endTime):'')+' · '+esc(b.location||'')+'</div><div class="bc-actions"><button class="btn sm" onclick="event.stopPropagation();bookingText(\''+b.id+'\')">Text</button><button class="btn ghost sm" onclick="event.stopPropagation();bookingCall(\''+b.id+'\')">Call</button></div></div>';}).join(''):'<div class="small">No upcoming bookings.</div>';}
+function bookingText(id){var b=S.get(K.bookings,[]).find(function(x){return x.id===id;});if(!b)return;var to=b.phone||prompt('Phone number for '+(b.clientName||'client')+'?');if(!to)return;var msg='Hey '+(b.clientName||'')+', quick reminder — your '+b.title+' is '+b.date+' at '+(b.startTime||'')+(b.location?' at '+b.location:'')+'. See you soon! Abbey';window.location.href='sms:'+to.replace(/\s/g,'')+'&body='+encodeURIComponent(msg);}
+function bookingCall(id){var b=S.get(K.bookings,[]).find(function(x){return x.id===id;});if(!b)return;var to=b.phone||prompt('Phone number?');if(!to)return;window.location.href='tel:'+to.replace(/\s/g,'');}
+function openBookingModal(id,date){var b=id?S.get(K.bookings,[]).find(function(x){return x.id===id;}):{id:uid(),title:'',clientName:'',date:date||today(),startTime:'10:00',endTime:'12:00',location:'',type:'Family',color:COLORS[1].v,notes:'',phone:''};var clients=S.get(K.clients,[]);var clientOpts='<option value="">— None —</option>'+clients.map(function(c){return '<option value="'+esc(c.id)+'"'+(b.clientId===c.id?' selected':'')+'>'+esc(c.name)+'</option>';}).join('');var swatches=COLORS.map(function(c){return '<div class="swatch'+(b.color===c.v?' selected':'')+'" style="background:'+c.v+'" data-c="'+c.v+'" title="'+c.name+'"></div>';}).join('');var m=document.getElementById('modal-inner');m.innerHTML='<h3>'+(id?'Edit booking':'New booking')+'</h3><div class="m-sub">'+(id?'Update details or delete.':'Fill in and save.')+'</div><div class="form-grid"><div class="full"><div class="label">Title</div><input class="field" id="b-title" value="'+esc(b.title)+'" placeholder="e.g. Henderson family shoot"></div><div><div class="label">Client (existing)</div><select class="field" id="b-client">'+clientOpts+'</select></div><div><div class="label">Or client name</div><input class="field" id="b-cname" value="'+esc(b.clientName||'')+'" placeholder="Free text"></div><div><div class="label">Date</div><input class="field" id="b-date" type="date" value="'+esc(b.date)+'"></div><div><div class="label">Type</div><input class="field" id="b-type" value="'+esc(b.type||'')+'" placeholder="Family, Engagement..."></div><div><div class="label">Start</div><input class="field" id="b-start" type="time" value="'+esc(b.startTime||'')+'"></div><div><div class="label">End</div><input class="field" id="b-end" type="time" value="'+esc(b.endTime||'')+'"></div><div class="full"><div class="label">Location</div><input class="field" id="b-loc" value="'+esc(b.location||'')+'"></div><div class="full"><div class="label">Phone (for reminders)</div><input class="field" id="b-phone" type="tel" value="'+esc(b.phone||'')+'"></div><div class="full"><div class="label">Notes</div><textarea class="field" id="b-notes">'+esc(b.notes||'')+'</textarea></div><div class="full"><div class="label">Colour</div><div class="swatch-row" id="b-swatches">'+swatches+'</div></div></div><div class="modal-actions">'+(id?'<button class="btn danger" onclick="deleteBooking(\''+id+'\')">Delete</button>':'')+'<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveBooking(\''+b.id+'\','+(id?'true':'false')+')">Save</button></div>';document.getElementById('modal-bg').classList.add('open');m.querySelectorAll('#b-swatches .swatch').forEach(function(s){s.addEventListener('click',function(){m.querySelectorAll('#b-swatches .swatch').forEach(function(x){x.classList.remove('selected');});s.classList.add('selected');});});}
+function saveBooking(id,exists){var arr=S.get(K.bookings,[]);var idx=exists?arr.findIndex(function(x){return x.id===id;}):-1;var sel=document.querySelector('#b-swatches .swatch.selected');var clientId=document.getElementById('b-client').value;var cname=document.getElementById('b-cname').value.trim();if(!cname&&clientId){var c=S.get(K.clients,[]).find(function(x){return x.id===clientId;});if(c)cname=c.name;}var obj={id:id,clientId:clientId||null,title:document.getElementById('b-title').value.trim()||'Untitled booking',clientName:cname,date:document.getElementById('b-date').value,startTime:document.getElementById('b-start').value,endTime:document.getElementById('b-end').value,location:document.getElementById('b-loc').value.trim(),type:document.getElementById('b-type').value.trim(),phone:document.getElementById('b-phone').value.trim(),notes:document.getElementById('b-notes').value.trim(),color:sel?sel.getAttribute('data-c'):'#7c3aed'};if(idx>=0)arr[idx]=obj;else arr.push(obj);S.set(K.bookings,arr);closeModal();renderCal();renderDashboard();}
+function deleteBooking(id){if(!confirm('Delete this booking?'))return;S.set(K.bookings,S.get(K.bookings,[]).filter(function(x){return x.id!==id;}));closeModal();renderCal();renderDashboard();}
+function renderClients(){var arr=S.get(K.clients,[]).slice().sort(function(a,b){return (b.addedDate||'').localeCompare(a.addedDate||'');});document.getElementById('clients-list').innerHTML=arr.length?arr.map(function(c){var st=c.paidStatus==='paid'?'Paid':c.paidStatus==='partial'?'Partial':'Unpaid';var stC=c.paidStatus==='paid'?'st-paid':c.paidStatus==='partial'?'st-partial':'st-unpaid';var init=(c.name||'?').split(' ').map(function(x){return x[0];}).slice(0,2).join('').toUpperCase();return '<div class="client-card" onclick="openClientModal(\''+c.id+'\')"><div class="avatar">'+esc(init)+'</div><div class="cc-body"><div class="cc-name">'+esc(c.name)+' <span style="color:var(--text-mute);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-left:6px">'+esc(c.type||'')+'</span></div><div class="cc-meta"><span>Added '+esc(c.addedDate||'')+'</span>'+(c.phone?'<span>· '+esc(c.phone)+'</span>':'')+(c.email?'<span>· '+esc(c.email)+'</span>':'')+'</div></div><div class="cc-rev"><div class="amt">'+fmt$(c.revenue||0)+'</div><div class="st '+stC+'">'+st+'</div></div></div>';}).join(''):'<div class="small">No clients yet.</div>';}
+function openClientModal(id){var c=id?S.get(K.clients,[]).find(function(x){return x.id===id;}):{id:uid(),name:'',email:'',phone:'',addedDate:today(),revenue:0,paidStatus:'unpaid',type:'Warm',notes:''};var m=document.getElementById('modal-inner');m.innerHTML='<h3>'+(id?'Edit client':'New client')+'</h3><div class="m-sub">Everything about them, in one place.</div><div class="form-grid"><div class="full"><div class="label">Name</div><input class="field" id="c-name" value="'+esc(c.name)+'"></div><div><div class="label">Email</div><input class="field" id="c-email" type="email" value="'+esc(c.email||'')+'"></div><div><div class="label">Phone</div><input class="field" id="c-phone" type="tel" value="'+esc(c.phone||'')+'"></div><div><div class="label">Type</div><select class="field" id="c-type"><option'+(c.type==='Hot'?' selected':'')+'>Hot</option><option'+(c.type==='Warm'?' selected':'')+'>Warm</option><option'+(c.type==='Cold'?' selected':'')+'>Cold</option><option'+(c.type==='Active'?' selected':'')+'>Active</option><option'+(c.type==='Repeat'?' selected':'')+'>Repeat</option><option'+(c.type==='Past'?' selected':'')+'>Past</option></select></div><div><div class="label">Added</div><input class="field" id="c-date" type="date" value="'+esc(c.addedDate)+'"></div><div><div class="label">Revenue $</div><input class="field" id="c-rev" type="number" value="'+esc(c.revenue||0)+'"></div><div><div class="label">Paid</div><select class="field" id="c-paid"><option value="paid"'+(c.paidStatus==='paid'?' selected':'')+'>Paid</option><option value="partial"'+(c.paidStatus==='partial'?' selected':'')+'>Partial</option><option value="unpaid"'+(c.paidStatus==='unpaid'?' selected':'')+'>Unpaid</option></select></div><div class="full"><div class="label">Notes</div><textarea class="field" id="c-notes">'+esc(c.notes||'')+'</textarea></div></div><div class="modal-actions">'+(id?'<button class="btn danger" onclick="deleteClient(\''+id+'\')">Delete</button>':'')+'<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClient(\''+c.id+'\','+(id?'true':'false')+')">Save</button></div>';document.getElementById('modal-bg').classList.add('open');}
+function saveClient(id,exists){var arr=S.get(K.clients,[]);var idx=exists?arr.findIndex(function(x){return x.id===id;}):-1;var obj={id:id,name:document.getElementById('c-name').value.trim()||'Unnamed',email:document.getElementById('c-email').value.trim(),phone:document.getElementById('c-phone').value.trim(),type:document.getElementById('c-type').value,addedDate:document.getElementById('c-date').value,revenue:Number(document.getElementById('c-rev').value)||0,paidStatus:document.getElementById('c-paid').value,notes:document.getElementById('c-notes').value.trim()};if(idx>=0)arr[idx]=obj;else arr.push(obj);S.set(K.clients,arr);closeModal();renderClients();renderDashboard();}
+function deleteClient(id){if(!confirm('Delete this client?'))return;S.set(K.clients,S.get(K.clients,[]).filter(function(x){return x.id!==id;}));closeModal();renderClients();renderDashboard();}
+function renderFinance(){var arr=S.get(K.finance,[]);var mm=new Date().getMonth(),yy=new Date().getFullYear();var mth=arr.filter(function(x){var d=new Date(x.date);return d.getMonth()===mm&&d.getFullYear()===yy;});var inc=mth.filter(function(x){return x.type==='income';}).reduce(function(s,x){return s+Number(x.amount||0);},0);var exp=mth.filter(function(x){return x.type==='expense';}).reduce(function(s,x){return s+Number(x.amount||0);},0);document.getElementById('fin-in').textContent=fmt$(inc);document.getElementById('fin-out').textContent=fmt$(exp);document.getElementById('fin-net').textContent=fmt$(inc-exp);document.getElementById('fin-net').style.color=inc-exp>=0?'#7dd3a4':'#ff9aa2';document.getElementById('fin-body').innerHTML=arr.map(function(r,i){return '<tr class="'+r.type+'"><td><input class="field" type="date" value="'+esc(r.date)+'" onchange="editFin('+i+',\'date\',this.value)"></td><td><input class="field" value="'+esc(r.desc)+'" onchange="editFin('+i+',\'desc\',this.value)"></td><td><input class="field" value="'+esc(r.cat)+'" onchange="editFin('+i+',\'cat\',this.value)"></td><td><select class="field" onchange="editFin('+i+',\'type\',this.value)"><option value="income"'+(r.type==='income'?' selected':'')+'>Income</option><option value="expense"'+(r.type==='expense'?' selected':'')+'>Expense</option></select></td><td class="num"><input class="field" type="number" value="'+esc(r.amount)+'" onchange="editFin('+i+',\'amount\',this.value)" style="text-align:right"></td><td><span class="x" onclick="delFinRow('+i+')">×</span></td></tr>';}).join('');renderDashboard();}
+function editFin(i,k,v){var a=S.get(K.finance,[]);if(k==='amount')v=Number(v)||0;a[i][k]=v;S.set(K.finance,a);renderFinance();}
+function addFinanceRow(){var a=S.get(K.finance,[]);a.unshift({date:today(),desc:'',cat:'',type:'expense',amount:0});S.set(K.finance,a);renderFinance();}
+function delFinRow(i){var a=S.get(K.finance,[]);a.splice(i,1);S.set(K.finance,a);renderFinance();}
+function renderCompliance(){var c=S.get(K.compliance,{});document.querySelectorAll('#sec-compliance .v.editable').forEach(function(el){var k=el.getAttribute('data-key');if(c[k])el.textContent=c[k];el.oninput=function(){c[k]=el.textContent;S.set(K.compliance,c);};});renderSavings();}
+function renderSavings(){var arr=S.get(K.savings,[]);document.getElementById('savings-list').innerHTML=arr.map(function(s,i){var p=Math.min(100,Math.round(s.current/s.target*100));return '<div style="display:flex;justify-content:space-between;padding:8px 0;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><input class="field" value="'+esc(s.name)+'" onchange="editSav('+i+',\'name\',this.value)" style="background:transparent;border:1px dashed transparent;padding:4px 8px"></div><div style="display:flex;gap:8px;align-items:center"><input class="field" type="number" value="'+esc(s.current)+'" onchange="editSav('+i+',\'current\',this.value)" style="width:90px;text-align:right"><span class="small">/</span><input class="field" type="number" value="'+esc(s.target)+'" onchange="editSav('+i+',\'target\',this.value)" style="width:90px;text-align:right"><span class="x" onclick="delSav('+i+')">×</span></div></div><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div style="height:10px"></div>';}).join('');}
+function editSav(i,k,v){var a=S.get(K.savings,[]);a[i][k]=(k==='name'?v:Number(v)||0);S.set(K.savings,a);renderSavings();}
+function delSav(i){var a=S.get(K.savings,[]);a.splice(i,1);S.set(K.savings,a);renderSavings();}
+function addSavingGoal(){var name=prompt('Goal name?');if(!name)return;var t=prompt('Target amount?');if(!t)return;var a=S.get(K.savings,[]);a.push({name:name,target:Number(t)||0,current:0});S.set(K.savings,a);renderSavings();}
+function renderCai(){var e=S.get(K.emerg,[]);document.getElementById('emerg-grid').innerHTML=e.map(function(x,i){return '<a class="emerg" href="'+(x.num?'tel:'+x.num.replace(/\s/g,''):'javascript:void(0)')+'"><span class="del" onclick="event.preventDefault();event.stopPropagation();delEmerg('+i+')">×</span><div class="role">'+esc(x.role)+'</div><div class="name">'+esc(x.name)+'</div><div class="num">'+esc(x.num||'Add number')+'</div></a>';}).join('');var r=S.get(K.cai_rem,[]);document.getElementById('cai-rem-list').innerHTML=r.length?r.map(function(x,i){return '<div class="list-item"><span class="dot pink"></span><div class="txt"><div class="t">'+esc(x.t)+'</div><div class="s">'+esc(x.s)+'</div></div><div class="r">'+esc(x.r||'')+'</div><span class="x" onclick="delCaiRem('+i+')">×</span></div>';}).join(''):'<div class="small">No reminders yet.</div>';var g=S.get(K.growth,[]);document.getElementById('growth-body').innerHTML=g.map(function(row,i){return '<tr><td><input class="field" type="date" value="'+esc(row.date)+'" onchange="editGrowth('+i+',\'date\',this.value)"></td><td><input class="field" value="'+esc(row.height||'')+'" placeholder="cm" onchange="editGrowth('+i+',\'height\',this.value)"></td><td><input class="field" value="'+esc(row.weight||'')+'" placeholder="kg" onchange="editGrowth('+i+',\'weight\',this.value)"></td><td><input class="field" value="'+esc(row.notes||'')+'" placeholder="teeth, milestones..." onchange="editGrowth('+i+',\'notes\',this.value)"></td><td><span class="x" onclick="delGrowth('+i+')">×</span></td></tr>';}).join('');var p=S.get(K.cai_photos,[]);document.getElementById('cai-photos').innerHTML=p.map(function(ph,i){return '<div class="cai-photo" style="background-image:url('+ph.dataUrl+')"><span class="del" onclick="delCaiPhoto('+i+')">×</span>'+(ph.caption?'<div class="cap">'+esc(ph.caption)+'</div>':'')+'</div>';}).join('');}
+function addEmergency(){var role=prompt('Role (e.g. Grandma)?');if(!role)return;var name=prompt('Name?')||'';var num=prompt('Phone number?')||'';var a=S.get(K.emerg,[]);a.push({role:role,name:name,num:num});S.set(K.emerg,a);renderCai();}
+function delEmerg(i){if(!confirm('Delete this contact?'))return;var a=S.get(K.emerg,[]);a.splice(i,1);S.set(K.emerg,a);renderCai();}
+function addCaiReminder(){var t=prompt('Reminder title?');if(!t)return;var s=prompt('Details?')||'';var r=prompt('When (e.g. Daily, Wed)?')||'';var a=S.get(K.cai_rem,[]);a.unshift({t:t,s:s,r:r});S.set(K.cai_rem,a);renderCai();}
+function delCaiRem(i){var a=S.get(K.cai_rem,[]);a.splice(i,1);S.set(K.cai_rem,a);renderCai();}
+function addGrowthEntry(){var a=S.get(K.growth,[]);a.unshift({date:today(),height:'',weight:'',notes:''});S.set(K.growth,a);renderCai();}
+function editGrowth(i,k,v){var a=S.get(K.growth,[]);a[i][k]=v;S.set(K.growth,a);}
+function delGrowth(i){var a=S.get(K.growth,[]);a.splice(i,1);S.set(K.growth,a);renderCai();}
+function uploadCaiPhoto(ev){var f=ev.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var caption=prompt('Caption (optional)?')||'';var a=S.get(K.cai_photos,[]);a.unshift({dataUrl:e.target.result,caption:caption,date:today()});S.set(K.cai_photos,a);renderCai();ev.target.value='';};r.readAsDataURL(f);}
+function delCaiPhoto(i){if(!confirm('Delete this photo?'))return;var a=S.get(K.cai_photos,[]);a.splice(i,1);S.set(K.cai_photos,a);renderCai();}
+function renderDreams(){var arr=S.get(K.dreams,[]);document.getElementById('dreams-grid').innerHTML=arr.length?arr.map(function(d){var bg=d.img?'background-image:url('+d.img+')':'background:linear-gradient(135deg,var(--violet),var(--plum))';var h=d.img?260:180;return '<div class="dream" onclick="openDreamModal(\''+d.id+'\')"><span class="del" onclick="event.stopPropagation();delDream(\''+d.id+'\')">×</span><div class="img" style="'+bg+';height:'+h+'px"></div><div class="cap"><div class="cat">'+esc(d.cat||'Dream')+'</div><div class="t">'+esc(d.title)+'</div>'+(d.notes?'<div class="p">'+esc(d.notes)+'</div>':'')+'<div class="meta"><span>'+esc(d.price||'')+'</span><span>'+esc(d.target||'')+'</span></div></div></div>';}).join(''):'<div class="small">Your dream board is empty. Tap "+ Add dream".</div>';}
+function openDreamModal(id){var d=id&&id!=='undefined'?S.get(K.dreams,[]).find(function(x){return x.id===id;}):{id:uid(),title:'',cat:'Travel',price:'',target:'',notes:'',img:''};var m=document.getElementById('modal-inner');m.innerHTML='<h3>'+(id&&id!=='undefined'?'Edit dream':'Add a dream')+'</h3><div class="m-sub">The reason you do the work.</div><div class="form-grid"><div class="full"><div class="label">Title</div><input class="field" id="d-title" value="'+esc(d.title)+'" placeholder="e.g. Byron Bay long weekend"></div><div><div class="label">Category</div><input class="field" id="d-cat" value="'+esc(d.cat||'')+'" placeholder="Travel / Gear / Home..."></div><div><div class="label">Cost</div><input class="field" id="d-price" value="'+esc(d.price||'')+'" placeholder="e.g. $1,200"></div><div class="full"><div class="label">Target date</div><input class="field" id="d-target" value="'+esc(d.target||'')+'" placeholder="By Oct 26..."></div><div class="full"><div class="label">Notes</div><textarea class="field" id="d-notes" placeholder="What it means, why it matters...">'+esc(d.notes||'')+'</textarea></div><div class="full"><div class="label">Hero photo</div>'+(d.img?'<img src="'+d.img+'" style="max-width:180px;border-radius:12px;margin-bottom:8px;display:block"><button class="btn ghost sm" onclick="clearDreamImg()">Remove photo</button><br><br>':'')+'<label class="upload" for="d-img"><div class="u-t">Tap to add hero photo</div><div class="u-s">JPG/PNG</div></label><input id="d-img" type="file" accept="image/*" onchange="loadDreamImg(event)"></div></div><div class="modal-actions">'+(id&&id!=='undefined'?'<button class="btn danger" onclick="delDream(\''+id+'\');closeModal()">Delete</button>':'')+'<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveDream(\''+d.id+'\','+(id&&id!=='undefined'?'true':'false')+')">Save</button></div>';window._dreamImg=d.img||'';document.getElementById('modal-bg').classList.add('open');}
+function loadDreamImg(ev){var f=ev.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){window._dreamImg=e.target.result;alert('Photo loaded — hit Save to keep.');};r.readAsDataURL(f);}
+function clearDreamImg(){window._dreamImg='';openDreamModal();}
+function saveDream(id,exists){var arr=S.get(K.dreams,[]);var idx=exists?arr.findIndex(function(x){return x.id===id;}):-1;var obj={id:id,title:document.getElementById('d-title').value.trim()||'Untitled dream',cat:document.getElementById('d-cat').value.trim()||'Dream',price:document.getElementById('d-price').value.trim(),target:document.getElementById('d-target').value.trim(),notes:document.getElementById('d-notes').value.trim(),img:window._dreamImg||''};if(idx>=0)arr[idx]=obj;else arr.push(obj);S.set(K.dreams,arr);closeModal();renderDreams();}
+function delDream(id){if(!confirm('Delete this dream?'))return;S.set(K.dreams,S.get(K.dreams,[]).filter(function(x){return x.id!==id;}));renderDreams();}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');window._dreamImg='';}
+document.getElementById('modal-bg').addEventListener('click',function(e){if(e.target.id==='modal-bg')closeModal();});
+function exportBackup(){var data={};Object.keys(K).forEach(function(k){data[K[k]]=S.get(K[k]);});var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='abbey-backup-'+today()+'.json';a.click();}
+function importBackup(ev){var f=ev.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(!confirm('Restore backup? This overwrites current data.'))return;Object.keys(d).forEach(function(k){localStorage.setItem(k,JSON.stringify(d[k]));});location.reload();}catch(err){alert('Invalid backup file.');}};r.readAsText(f);ev.target.value='';}
+function wipeAll(){if(!confirm('Reset EVERYTHING — cannot be undone. Sure?'))return;if(!confirm('Really sure?'))return;Object.keys(K).forEach(function(k){localStorage.removeItem(K[k]);});location.reload();}
+seed();renderDashboard();renderTodo();renderClients();renderFinance();renderCompliance();renderCai();renderDreams();renderCal();
 </script>
-
 </body>
 </html>
